@@ -1,0 +1,15 @@
+# Nix/Direnv
+result
+result-*
+.direnv/
+.envrc
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db

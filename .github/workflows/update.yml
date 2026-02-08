@@ -1,0 +1,44 @@
+name: Update Packages
+on:
+  schedule:
+    # Run daily at midnight
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      # - uses: cachix/cachix-action@v14
+      #   with:
+      #     name: <YOUR_CACHIX_NAME>
+      #     authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Update Packages
+        run: |
+          # Get list of packages for x86_64-linux
+          PACKAGES=$(nix flake show --json | jq -r '.packages."x86_64-linux" | keys[]')
+
+          for pkg in $PACKAGES; do
+            echo "Checking for updates for $pkg..."
+            # Try to update the package.
+            # --commit: Creates a commit if an update is found
+            # --flake: Specifies the flake and attribute
+            if nix run nixpkgs#nix-update -- --flake "$pkg" --commit; then
+              echo "Updated $pkg"
+            else
+              echo "Failed to update $pkg or no update available"
+            fi
+          done
+      - name: Push changes
+        run: |
+          git push

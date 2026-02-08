@@ -1,9 +1,6 @@
 {
-  perSystem =
-    { pkgs, ... }:
-    {
-      packages = {
-        example2 = pkgs.callPackage ../pkgs/example2 { };
-      };
+  perSystem = _: {
+    packages = {
     };
+  };
 }

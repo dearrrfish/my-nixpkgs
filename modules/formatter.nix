@@ -13,6 +13,7 @@
         nixfmt.enable = true;
         statix.enable = true;
         yamlfmt.enable = true;
+        mdformat.enable = true;
       };
       settings = {
         on-unmatched = "fatal";

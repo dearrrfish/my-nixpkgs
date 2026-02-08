@@ -12,12 +12,12 @@ other projects.
 ### Setting Up
 
 1. Fork this repository.
-2. Begin adding packages to the `pkgs/by-name` directory. Follow the same
+1. Begin adding packages to the `pkgs/by-name` directory. Follow the same
    approach as adding packages in `nixpkgs`. Similar to [RFC140], packages added
    in this directory will be automatically discovered.
    - Create a new directory for each package.
    - Inside each directory, create a `package.nix` file.
-3. Optionally, you can add packages directly to the `pkgs/` directory and
+1. Optionally, you can add packages directly to the `pkgs/` directory and
    manually update the bindings in the `imports/pkgs-all.nix` file.
 
 ### Integrating Your Repository as an Overlay
@@ -34,7 +34,7 @@ To use this repository as an overlay in another project, follow these steps:
    };
    ```
 
-2. **Include the Overlay in `pkgs`**:
+1. **Include the Overlay in `pkgs`**:
 
    When constructing `pkgs`, include the overlay as follows:
 
@@ -46,15 +46,13 @@ To use this repository as an overlay in another project, follow these steps:
    };
    ```
 
-3. **Use Your Packages**:
+1. **Use Your Packages**:
 
    Access the packages in your project like this:
 
    ```nix
    buildInputs = [ pkgs.example1 pkgs.example2 ];
    ```
-
-[RFC140]: https://github.com/NixOS/rfcs/pull/140
 
 ### Examples
 
@@ -83,7 +81,7 @@ we invested in this package.
 Sponsor me on [Github][github sponsors link] and/or any of [the
 contributors][6].
 
-[donate github]:
-  https://img.shields.io/badge/Sponsor-Github-brightgreen.svg?style=flat-square
-[github sponsors link]: https://github.com/sponsors/drupol
 [6]: https://github.com/drupol/my-own-nixpkgs/graphs/contributors
+[donate github]: https://img.shields.io/badge/Sponsor-Github-brightgreen.svg?style=flat-square
+[github sponsors link]: https://github.com/sponsors/drupol
+[rfc140]: https://github.com/NixOS/rfcs/pull/140
