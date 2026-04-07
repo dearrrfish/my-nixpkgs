@@ -6,12 +6,12 @@
 }:
 
 let
-  version = "0.1.4.post6";
+  version = "0.1.5";
   src = fetchFromGitHub {
     owner = "HKUDS";
     repo = "nanobot";
     rev = "v${version}";
-    sha256 = "sha256-oDbqkfKr55Lirwa/GHOtRq0oJc/+bEXlnRM11AmmIJE=";
+    sha256 = "sha256-gqNLWQ/YeOtqvex/XHHg0v2dnDbIY1ZTE8u1Obx+4tA=";
   };
 
   # Helper to build the bridge
