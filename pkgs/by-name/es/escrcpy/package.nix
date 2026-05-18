@@ -134,9 +134,10 @@ stdenv.mkDerivation {
   '';
 
   meta = with lib; {
-    description = "A graphical interface for scrcpy built with Electron";
+    description = "Graphical interface for scrcpy built with Electron";
     homepage = "https://github.com/viarotel-org/escrcpy";
     license = licenses.gpl3Only;
+    maintainers = [ ];
     platforms = [
       "x86_64-linux"
       "aarch64-linux"
