@@ -7,9 +7,32 @@ result-*
 # IDEs
 .vscode/
 .idea/
+.helix/
 *.swp
+*.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
+
+# Superpowers (private project memory/plans)
+docs/superpowers/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Temporary files
+*.log
+*.tmp
