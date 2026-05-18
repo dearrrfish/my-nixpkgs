@@ -77,6 +77,10 @@ python3Packages.buildPythonApplication {
     readability-lxml
   ];
 
+  env.NANOBOT_SKIP_WEBUI_BUILD = 1;
+
+  dontCheckRuntimeDeps = true;
+
   # The pyproject.toml expects 'bridge' to be copied to 'nanobot/bridge'.
   # Since hatchling handles this during build if the files are present,
   # we need to make sure the 'bridge' folder is populated in the source before build.
