@@ -39,6 +39,9 @@
   nss,
   pango,
   systemd,
+  scrcpy,
+  android-tools,
+  gnirehtet,
 }:
 
 let
@@ -106,6 +109,9 @@ stdenv.mkDerivation {
     nss
     pango
     systemd
+    scrcpy
+    android-tools
+    gnirehtet
   ];
 
   dontBuild = true;
@@ -131,6 +137,27 @@ stdenv.mkDerivation {
       --replace "/opt/Escrcpy/escrcpy" "escrcpy"
 
     runHook postInstall
+  '';
+
+  postInstall = ''
+    # Replace bundled binaries with Nixpkgs versions
+    # The architecture-specific directory is linux-x64 or linux-arm64
+    for dir in $out/share/escrcpy/resources/extra/linux-*; do
+      # linux/ directory only contains tray icons, skip it
+      [ "$(basename "$dir")" = "linux" ] && continue
+
+      if [ -d "$dir/scrcpy" ]; then
+        rm -f "$dir/scrcpy/scrcpy"
+        ln -s ${scrcpy}/bin/scrcpy "$dir/scrcpy/scrcpy"
+        rm -f "$dir/scrcpy/adb"
+        ln -s ${android-tools}/bin/adb "$dir/scrcpy/adb"
+      fi
+
+      if [ -d "$dir/gnirehtet" ]; then
+        rm -f "$dir/gnirehtet/gnirehtet"
+        ln -s ${gnirehtet}/bin/gnirehtet "$dir/gnirehtet/gnirehtet"
+      fi
+    done
   '';
 
   meta = with lib; {
