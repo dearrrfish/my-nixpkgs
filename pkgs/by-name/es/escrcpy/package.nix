@@ -158,6 +158,17 @@ stdenv.mkDerivation {
         ln -s ${gnirehtet}/bin/gnirehtet "$dir/gnirehtet/gnirehtet"
       fi
     done
+
+    # Replace bundled scrcpy-server in common directory
+    COMMON_RESOURCES=$out/share/escrcpy/resources/extra/common
+    if [ -d "$COMMON_RESOURCES/scrcpy" ]; then
+      rm -f "$COMMON_RESOURCES/scrcpy/scrcpy-server"
+      ln -s ${scrcpy}/share/scrcpy/scrcpy-server "$COMMON_RESOURCES/scrcpy/scrcpy-server"
+    fi
+    if [ -d "$COMMON_RESOURCES/wscrcpy" ]; then
+      rm -f "$COMMON_RESOURCES/wscrcpy/scrcpy-server"
+      ln -s ${scrcpy}/share/scrcpy/scrcpy-server "$COMMON_RESOURCES/wscrcpy/scrcpy-server"
+    fi
   '';
 
   meta = with lib; {
