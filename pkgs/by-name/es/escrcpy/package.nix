@@ -34,6 +34,7 @@
   libuuid,
   libxcb,
   libxkbcommon,
+  libglvnd,
   mesa,
   nspr,
   nss,
