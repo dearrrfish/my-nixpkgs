@@ -104,6 +104,7 @@ stdenv.mkDerivation {
     libuuid
     libxcb
     libxkbcommon
+    libglvnd
     mesa
     nspr
     nss
