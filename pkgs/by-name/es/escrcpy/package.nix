@@ -35,6 +35,7 @@
   libxcb,
   libxkbcommon,
   libglvnd,
+  libGL,
   mesa,
   nspr,
   nss,
@@ -106,6 +107,7 @@ stdenv.mkDerivation {
     libxcb
     libxkbcommon
     libglvnd
+    libGL
     mesa
     nspr
     nss
@@ -139,6 +141,12 @@ stdenv.mkDerivation {
       --replace "/opt/Escrcpy/escrcpy" "escrcpy"
 
     runHook postInstall
+  '';
+
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libGL libglvnd mesa ]}"
+    )
   '';
 
   postInstall = ''
