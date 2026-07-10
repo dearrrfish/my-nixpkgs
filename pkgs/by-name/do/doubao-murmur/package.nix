@@ -46,7 +46,7 @@ python3Packages.buildPythonApplication rec {
     webkitgtk_6_0
   ];
 
-  propagatedBuildInputs = with python3Packages; [
+  dependencies = with python3Packages; [
     pygobject3
     websockets
     sounddevice
@@ -56,6 +56,11 @@ python3Packages.buildPythonApplication rec {
     pytestCheckHook
     pytest-asyncio
   ];
+
+  pytestFlagsArray = [ "--asyncio-mode=auto" ];
+
+  # Suppress wrapGAppsHook4's own wrapping; merge its args into Python's makeWrapper
+  dontWrapGApps = true;
 
   # Prepend the paths of clipboard and simulation CLI tools to the environment wrapper's PATH
   makeWrapperArgs = [
@@ -69,6 +74,10 @@ python3Packages.buildPythonApplication rec {
       ]
     }"
   ];
+
+  preFixup = ''
+    makeWrapperArgs+=("''${gappsWrapperArgs[@]}")
+  '';
 
   meta = with lib; {
     description = "Voice-to-text input using Doubao ASR for SteamOS/Linux";
