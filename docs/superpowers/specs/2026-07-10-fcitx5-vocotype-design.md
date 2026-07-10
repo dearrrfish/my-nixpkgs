@@ -2,16 +2,17 @@
 
 - **Date:** 2026-07-10
 - **Package Name:** `fcitx5-vocotype`
-- **Location:** [pkgs/by-name/fc/fcitx5-vocotype/package.nix](file:///home/yjin/codes/my-nixpkgs/pkgs/by-name/fc/fcitx5-vocotype/package.nix)
+- **Location:** \[pkgs/by-name/fc/fcitx5-vocotype/package.nix\](file:///home/yjin/codes/my-nixpkgs/pkgs/by-name/fc/fcitx5-vocotype/package.nix)
 
----
+______________________________________________________________________
 
 ## 1. Overview
+
 [VocoType-linux](https://github.com/LeonardNJU/VocoType-linux) is a high-performance offline Chinese voice input method that supports Fcitx5 and Rime. It is composed of a C++ Fcitx5 addon client and a Python backend server that performs FunASR transcription, Rime input handling, and optional LLM/SLM text polishing.
 
 The goal is to package the C++ Addon in Nix, along with automated backend scripts, while keeping dynamic Python dependencies outside of Nix's read-only sandbox.
 
----
+______________________________________________________________________
 
 ## 2. Package Architecture & Nix Integration
 
@@ -47,35 +48,45 @@ graph TD
     ServPy -->|Reads| Rime
 ```
 
----
+______________________________________________________________________
 
 ## 3. Implementation Details
 
 ### A. C++ Addon Build & Configuration
+
 1. **Subdirectory:** Build inside `fcitx5/addon` using CMake.
-2. **Dependencies:**
+
+1. **Dependencies:**
+
    - `cmake`, `extra-cmake-modules`, `pkg-config` (native build inputs).
    - `fcitx5`, `nlohmann_json` (build inputs).
-3. **Patching Recorder Path:**
+
+1. **Patching Recorder Path:**
    We will patch `fcitx5/addon/vocotype.cpp` to execute the recorder wrapper directly from the Nix store instead of searching in `~/.local/bin/`:
+
    ```cpp
    // Before patch
    recorder_launcher_path_ = std::string(home) + "/.local/bin/vocotype-fcitx5-recorder";
    // After patch
    recorder_launcher_path_ = "@recorder_path@";
    ```
+
    During the derivation build, we will replace `@recorder_path@` with `$out/bin/vocotype-fcitx5-recorder`.
 
-4. **Addon Config Files:**
+1. **Addon Config Files:**
    The package will manually copy the required addon metadata to Fcitx5 directories:
-   - `fcitx5/data/vocotype.conf` $\rightarrow$ `$out/share/fcitx5/addon/vocotype.conf`
-   - `fcitx5/data/vocotype.conf.in` (renamed to `vocotype.conf`) $\rightarrow$ `$out/share/fcitx5/inputmethod/vocotype.conf`
+
+   - `fcitx5/data/vocotype.conf` $\\rightarrow$ `$out/share/fcitx5/addon/vocotype.conf`
+   - `fcitx5/data/vocotype.conf.in` (renamed to `vocotype.conf`) $\\rightarrow$ `$out/share/fcitx5/inputmethod/vocotype.conf`
 
 ### B. Python Backend Wrapper Scripts (`bin/`)
+
 We will generate two wrapper scripts in `$out/bin/` to manage the virtualenv and dynamically bind Nix shared libraries on the user's host system:
 
 #### 1. `vocotype-fcitx5-backend`
+
 This wrapper runs the backend server:
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -105,7 +116,9 @@ exec "$PYTHON_BIN" "@package_src@/fcitx5/backend/fcitx5_server.py" "$@"
 ```
 
 #### 2. `vocotype-fcitx5-recorder`
+
 This wrapper runs the recording script for the C++ client:
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -121,15 +134,17 @@ exec "$PYTHON_BIN" "@package_src@/fcitx5/backend/audio_recorder.py" "$@"
 ```
 
 ### C. Native Library Paths (`LD_LIBRARY_PATH`)
-To ensure PyPI-installed wheels (which expect standard dynamic linkers and shared libraries) run perfectly on NixOS, we bind the following packages in `@libPath@`:
-* `stdenv.cc.cc.lib` (C++ runtime: `libstdc++.so.6`, `libgcc_s.so.1`)
-* `zlib`
-* `portaudio` (required by `sounddevice`)
-* `libsndfile` (required by `soundfile`)
-* `librime` (required by `pyrime`)
-* `alsa-lib`, `libpulseaudio`, `pipewire` (audio interface compatibility)
 
----
+To ensure PyPI-installed wheels (which expect standard dynamic linkers and shared libraries) run perfectly on NixOS, we bind the following packages in `@libPath@`:
+
+- `stdenv.cc.cc.lib` (C++ runtime: `libstdc++.so.6`, `libgcc_s.so.1`)
+- `zlib`
+- `portaudio` (required by `sounddevice`)
+- `libsndfile` (required by `soundfile`)
+- `librime` (required by `pyrime`)
+- `alsa-lib`, `libpulseaudio`, `pipewire` (audio interface compatibility)
+
+______________________________________________________________________
 
 ## 4. How to Use with Home Manager
 

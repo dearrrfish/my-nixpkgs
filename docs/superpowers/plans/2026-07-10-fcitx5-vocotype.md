@@ -14,18 +14,21 @@
 - Commit format: `feat(pkgs): add fcitx5-vocotype`.
 - The package must build successfully via `nix build .#fcitx5-vocotype`.
 
----
+______________________________________________________________________
 
 ### Task 1: Create Package Directory and Nix Derivation
 
 **Files:**
+
 - Create: `pkgs/by-name/fc/fcitx5-vocotype/package.nix`
 
 **Interfaces:**
+
 - Produces: `pkgs.fcitx5-vocotype` package exposed in the flake overlay.
 
 - [ ] **Step 1: Write package.nix**
   Write the Nix derivation structure with all build inputs, build phases, wrappers, and meta configurations:
+
   ```nix
   {
     lib,
