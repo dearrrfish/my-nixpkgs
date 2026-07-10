@@ -9,20 +9,24 @@
 **Tech Stack:** Nix, Python 3, PyGObject, Gtk4, WebKitGTK 6.0, sounddevice, websockets, pytest.
 
 ## Global Constraints
+
 - **Location:** `pkgs/by-name/do/doubao-murmur/package.nix`.
 - **Reproducibility:** Lock source revision to GitHub tag `v1.4.5` and verify hash `sha256-axQblvdvtX9XMLXpz4Kjq8BpNlEcVkOzwbQqfz5egCg=`.
 - **Testing:** Ensure checkPhase runs the package's python tests using pytest.
 - **Convention:** Use Conventional Commits.
 
----
+______________________________________________________________________
 
 ### Task 1: Define doubao-murmur Derivation
 
 **Files:**
+
 - Create: `pkgs/by-name/do/doubao-murmur/package.nix`
 
 **Interfaces:**
+
 - Consumes: None
+
 - Produces: `doubao-murmur` package definition
 
 - [ ] **Step 1: Write the package derivation**
@@ -97,20 +101,24 @@
 
 - [ ] **Step 3: Commit derivation definition**
   Run:
+
   ```bash
   git add pkgs/by-name/do/doubao-murmur/package.nix
   git commit -m "feat(pkgs): add doubao-murmur package definition"
   ```
 
----
+______________________________________________________________________
 
 ### Task 2: Build and Verify the Package
 
 **Files:**
+
 - Modify: `pkgs/by-name/do/doubao-murmur/package.nix` (if adjustments are needed)
 
 **Interfaces:**
+
 - Consumes: `pkgs/by-name/do/doubao-murmur/package.nix`
+
 - Produces: Valid package build and clean flake checks
 
 - [ ] **Step 1: Build the package**
@@ -127,6 +135,7 @@
 
 - [ ] **Step 4: Commit any adjustments**
   Run:
+
   ```bash
   git add pkgs/by-name/do/doubao-murmur/package.nix
   git commit -m "fix(pkgs): verify and format doubao-murmur derivation" || echo "No changes to commit"

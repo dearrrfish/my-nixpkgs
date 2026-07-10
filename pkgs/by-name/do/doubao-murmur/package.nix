@@ -1,14 +1,15 @@
-{ lib
-, python3Packages
-, fetchFromGitHub
-, gobject-introspection
-, wrapGAppsHook4
-, webkitgtk_6_0
-, wl-clipboard
-, xclip
-, xdotool
-, ydotool
-, wtype
+{
+  lib,
+  python3Packages,
+  fetchFromGitHub,
+  gobject-introspection,
+  wrapGAppsHook4,
+  webkitgtk_6_0,
+  wl-clipboard,
+  xclip,
+  xdotool,
+  ydotool,
+  wtype,
 }:
 
 python3Packages.buildPythonApplication rec {
@@ -58,7 +59,15 @@ python3Packages.buildPythonApplication rec {
 
   # Prepend the paths of clipboard and simulation CLI tools to the environment wrapper's PATH
   makeWrapperArgs = [
-    "--prefix PATH : ${lib.makeBinPath [ wl-clipboard xclip xdotool ydotool wtype ]}"
+    "--prefix PATH : ${
+      lib.makeBinPath [
+        wl-clipboard
+        xclip
+        xdotool
+        ydotool
+        wtype
+      ]
+    }"
   ];
 
   meta = with lib; {
