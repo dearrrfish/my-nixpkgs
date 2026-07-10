@@ -7,8 +7,7 @@
   pkg-config,
   fcitx5,
   nlohmann_json,
-  python3,
-  makeWrapper,
+  python312,
   portaudio,
   libsndfile,
   librime,
@@ -19,23 +18,23 @@
 }:
 
 let
-  autopxd2-override = python3.pkgs.autopxd2.overridePythonAttrs (_oldAttrs: {
+  autopxd2-override = python312.pkgs.autopxd2.overridePythonAttrs (_oldAttrs: {
     doCheck = false;
   });
 
-  pyrime = python3.pkgs.buildPythonPackage rec {
+  pyrime = python312.pkgs.buildPythonPackage rec {
     pname = "pyrime";
     version = "0.2.3";
     format = "pyproject";
 
-    src = python3.pkgs.fetchPypi {
+    src = python312.pkgs.fetchPypi {
       inherit pname version;
       sha256 = "1v17hsprhhh7phjn7jwcg84qxa2sp6sjwdiiz2hk16cnyqr4941k";
     };
 
     nativeBuildInputs = [
-      python3.pkgs.meson-python
-      python3.pkgs.cython
+      python312.pkgs.meson-python
+      python312.pkgs.cython
       autopxd2-override
       pkg-config
     ];
@@ -45,12 +44,12 @@ let
     ];
 
     propagatedBuildInputs = [
-      python3.pkgs.platformdirs
-      python3.pkgs.wcwidth
+      python312.pkgs.platformdirs
+      python312.pkgs.wcwidth
     ];
   };
 
-  pythonEnv = python3.withPackages (_ps: [ pyrime ]);
+  pythonEnv = python312.withPackages (_ps: [ pyrime ]);
 in
 stdenv.mkDerivation rec {
   pname = "fcitx5-vocotype";
@@ -69,7 +68,6 @@ stdenv.mkDerivation rec {
     cmake
     extra-cmake-modules
     pkg-config
-    makeWrapper
   ];
 
   buildInputs = [
@@ -121,7 +119,7 @@ stdenv.mkDerivation rec {
       if [ ! -f "\$PYTHON_BIN" ]; then
         echo "Initializing VocoType Python virtualenv in \$VENV_DIR..."
         mkdir -p "\$(dirname "\$VENV_DIR")"
-        ${python3}/bin/python3 -m venv "\$VENV_DIR"
+        ${python312}/bin/python3 -m venv "\$VENV_DIR"
         "\$PYTHON_BIN" -m pip install --upgrade pip
       fi
 
@@ -132,7 +130,7 @@ stdenv.mkDerivation rec {
 
       # Inject paths
       export LD_LIBRARY_PATH="${libPath}\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
-      export PYTHONPATH="${pythonEnv}/${python3.sitePackages}\''${PYTHONPATH:+:\$PYTHONPATH}"
+      export PYTHONPATH="${pythonEnv}/${python312.sitePackages}\''${PYTHONPATH:+:\$PYTHONPATH}"
 
       # Directly exec the virtualenv python with the target script path
       exec "\$PYTHON_BIN" "$out/share/vocotype-fcitx5/backend/fcitx5_server.py" "\$@"
@@ -149,7 +147,7 @@ stdenv.mkDerivation rec {
       if [ ! -f "\$PYTHON_BIN" ]; then
         echo "Initializing VocoType Python virtualenv in \$VENV_DIR..."
         mkdir -p "\$(dirname "\$VENV_DIR")"
-        ${python3}/bin/python3 -m venv "\$VENV_DIR"
+        ${python312}/bin/python3 -m venv "\$VENV_DIR"
         "\$PYTHON_BIN" -m pip install --upgrade pip
       fi
 
@@ -160,7 +158,7 @@ stdenv.mkDerivation rec {
 
       # Inject paths
       export LD_LIBRARY_PATH="${libPath}\''${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
-      export PYTHONPATH="${pythonEnv}/${python3.sitePackages}\''${PYTHONPATH:+:\$PYTHONPATH}"
+      export PYTHONPATH="${pythonEnv}/${python312.sitePackages}\''${PYTHONPATH:+:\$PYTHONPATH}"
 
       # Directly exec the virtualenv python with the target script path
       exec "\$PYTHON_BIN" "$out/share/vocotype-fcitx5/backend/audio_recorder.py" "\$@"
