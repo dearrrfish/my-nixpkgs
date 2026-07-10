@@ -145,7 +145,13 @@ stdenv.mkDerivation {
 
   preFixup = ''
     gappsWrapperArgs+=(
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libGL libglvnd mesa ]}"
+      --prefix LD_LIBRARY_PATH : "${
+        lib.makeLibraryPath [
+          libGL
+          libglvnd
+          mesa
+        ]
+      }"
     )
   '';
 
