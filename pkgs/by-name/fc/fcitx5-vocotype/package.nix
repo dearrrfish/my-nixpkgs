@@ -140,20 +140,12 @@ stdenv.mkDerivation rec {
             # Write recorder wrapper
             cat << EOF > $out/bin/vocotype-fcitx5-recorder
       #!/usr/bin/env bash
-      # Perform venv and dependency checks
       VENV_DIR="\$HOME/.cache/vocotype-fcitx5/venv"
       PYTHON_BIN="\$VENV_DIR/bin/python"
 
       if [ ! -f "\$PYTHON_BIN" ]; then
-        echo "Initializing VocoType Python virtualenv in \$VENV_DIR..."
-        mkdir -p "\$(dirname "\$VENV_DIR")"
-        ${python312}/bin/python3 -m venv "\$VENV_DIR"
-        "\$PYTHON_BIN" -m pip install --upgrade pip
-      fi
-
-      if ! "\$PYTHON_BIN" -c "import sounddevice, librosa, soundfile, funasr_onnx, jieba, modelscope" &>/dev/null; then
-        echo "Installing Python dependencies (sounddevice, librosa, soundfile, funasr-onnx, jieba, modelscope)..."
-        "\$PYTHON_BIN" -m pip install sounddevice librosa soundfile funasr-onnx jieba modelscope
+        echo "Error: VocoType virtualenv not initialized. Please start vocotype-fcitx5-backend first." >&2
+        exit 1
       fi
 
       # Inject paths
