@@ -3,7 +3,7 @@
   stdenvNoCC,
   fetchurl,
   autoPatchelfHook,
-  makeWrapper,
+  wrapGAppsHook4,
   webkitgtk_4_1,
   gtk3,
   glib,
@@ -26,7 +26,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     autoPatchelfHook
-    makeWrapper
+    wrapGAppsHook4
   ];
   buildInputs = [
     webkitgtk_4_1
@@ -47,9 +47,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  postFixup = ''
-    wrapProgram $out/bin/AskHuman \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath finalAttrs.buildInputs}
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --set WEBKIT_DISABLE_DMABUF_RENDERER 1
+    )
   '';
 
   meta = {
