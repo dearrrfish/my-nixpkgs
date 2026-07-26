@@ -15,11 +15,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "askhuman";
-  version = "0.10.2";
+  version = "0.11.1";
 
   src = fetchurl {
     url = "https://github.com/Naituw/AskHuman/releases/download/v${finalAttrs.version}/AskHuman-x86_64-unknown-linux-gnu-v${finalAttrs.version}.tar.gz";
-    hash = "sha256-/KAaZ+/q3AZakqunt2Rl2Jg8iQnNQCJKszNuGZ9lXkc=";
+    hash = "sha256-DWZzzJ1SOpETQDfkwyV1NDBXnIo3n6rZI/PqCJxd/4w=";
   };
 
   sourceRoot = ".";
