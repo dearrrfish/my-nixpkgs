@@ -4,11 +4,11 @@
   fetchurl,
 }:
 let
-  version = "7.2.120";
+  version = "7.2.123";
   sources = {
     x86_64-linux = {
       url = "https://github.com/router-for-me/CLIProxyAPI/releases/download/v${version}/CLIProxyAPI_${version}_linux_amd64.tar.gz";
-      hash = "sha256-iTMzJzczi+XVztrkuWJUua/I3+DxPEMic4xl/Xkxzgo=";
+      hash = "sha256-wCxw+FY2x8aXHcYOKCrJsxFG2Z6W6CfnrDq1cB+lu0k=";
     };
     aarch64-linux = {
       url = "https://github.com/router-for-me/CLIProxyAPI/releases/download/v${version}/CLIProxyAPI_${version}_linux_arm64.tar.gz";
