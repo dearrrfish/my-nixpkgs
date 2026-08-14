@@ -14,13 +14,13 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "doubao-murmur";
-  version = "1.5.0";
+  version = "1.5.1";
 
   src = fetchFromGitHub {
     owner = "lilong7676";
     repo = "doubao-murmur";
     rev = "v${version}";
-    hash = "sha256-vYDYRlJJZTqqUYMISimqLoZBZIuss9rKh6DMbHehuvQ=";
+    hash = "sha256-2O0C+V3rOCVEBUwg/piqjU5jKeDwDtsOGh5QtAl+TzM=";
   };
 
   sourceRoot = "source/linux";
