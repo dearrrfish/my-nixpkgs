@@ -53,7 +53,7 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "fcitx5-vocotype";
-  version = "5.0.0";
+  version = "5.0.1";
 
   src = fetchFromGitHub {
     owner = "LeonardNJU";
