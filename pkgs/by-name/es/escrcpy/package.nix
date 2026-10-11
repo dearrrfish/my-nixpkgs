@@ -47,11 +47,11 @@
 }:
 
 let
-  version = "3.2.0";
+  version = "3.3.1";
   sources = {
     x86_64-linux = {
       url = "https://github.com/viarotel-org/escrcpy/releases/download/v${version}/Escrcpy-${version}-linux-amd64.deb";
-      hash = "sha256-XVXtjeOityKctmKk4Sii67WPMvskFbnBCFJnnQ2WRgo=";
+      hash = "sha256-IY6n2JYdKCPG3DasdEWve+1y4SkzPkJBw43SAn2QSgo=";
     };
     aarch64-linux = {
       url = "https://github.com/viarotel-org/escrcpy/releases/download/v${version}/Escrcpy-${version}-linux-arm64.deb";
