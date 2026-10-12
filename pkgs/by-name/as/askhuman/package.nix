@@ -12,6 +12,7 @@
   gdk-pixbuf,
   librsvg,
   openssl,
+  libayatana-appindicator,
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "askhuman";
@@ -38,6 +39,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     librsvg
     openssl
   ];
+
+  # The tray backend loads AppIndicator with dlopen, so retain its runtime path.
+  runtimeDependencies = [ libayatana-appindicator ];
 
   installPhase = ''
     runHook preInstall
