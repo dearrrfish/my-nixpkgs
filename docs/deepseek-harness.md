@@ -14,12 +14,10 @@ Only **x86_64-linux** is packaged and tested.
 
 ## Source tracking
 
-The package follows upstream `master` with a pinned commit (`src.rev`), so its
-version can be an unreleased source version taken from
-`apps/cli/package.json`. `share/deepseek-harness/source.json` inside the output
-and the `sourceRevision` passthru attribute identify the pinned revision, which
-is also passed to the build as `DSH_CLIENT_COMMIT_HASH` (GitHub archives omit
-`.git`).
+The package follows upstream release tags (`dsh-v*`).
+`share/deepseek-harness/source.json` inside the output and the `sourceRevision`
+passthru attribute identify the pinned revision, which is also passed to the
+build as `DSH_CLIENT_COMMIT_HASH` (GitHub archives omit `.git`).
 
 The output keeps the complete built workspace and dependencies to preserve
 upstream's built-in profile resolution through `apps/cli`. It is approximately
@@ -49,15 +47,13 @@ upstream's built-in profile resolution through `apps/cli`. It is approximately
 ## Updating
 
 The scheduled update workflow runs `nix-update` for this package with
-`--version=branch`, which moves `src` to the latest `master` commit and refreshes
-both the source and the pnpm dependency hashes. To update manually:
+`--version-regex 'dsh-v(.*)' --version=unstable`, which tracks the latest
+`dsh-v*` release tag and refreshes both the source and the pnpm dependency
+hashes. To update manually:
 
 ```sh
-nix run nixpkgs#nix-update -- --flake de/deepseek-harness --version=branch
+nix run nixpkgs#nix-update -- --flake de/deepseek-harness --version-regex 'dsh-v(.*)' --version=unstable
 ```
-
-Then set `version` to the value in upstream's `apps/cli/package.json` at the
-new `rev` if you prefer the upstream version string, and verify:
 
 ```sh
 nix build .#de/deepseek-harness.pnpmDeps --no-link

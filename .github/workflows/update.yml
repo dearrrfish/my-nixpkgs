@@ -33,8 +33,8 @@ jobs:
             # Per-package nix-update arguments
             EXTRA_ARGS=()
             case "$pkg" in
-              # Follows upstream master rather than tagged releases
-              de/deepseek-harness) EXTRA_ARGS=(--version=branch) ;;
+              # Follows upstream release tags (dsh-v0.x.y)
+              de/deepseek-harness) EXTRA_ARGS=(--version-regex 'dsh-v(.*)' --version=unstable) ;;
             esac
             # Try to update the package.
             # --commit: Creates a commit if an update is found
