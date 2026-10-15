@@ -1,0 +1,38 @@
+--- a/packages/boot/app-boot/src/profile-resolution/resolver.ts
++++ b/packages/boot/app-boot/src/profile-resolution/resolver.ts
+@@ -611,7 +611,21 @@
+ 
+ function internalModules(): InternalModules {
+   const require = createRequire(import.meta.url)
+-  const addon = require('node-addon-require-builtin') as { requireBuiltin(moduleId: string): unknown }
++  const nativeAddon = require('node-addon-require-builtin') as { requireBuiltin(moduleId: string): unknown }
++  // Use Node's actual exposed singleton modules before the native getter probe.
++  // Nix-built Node can use accessor instruction sequences the addon cannot decode.
++  const addon = {
++    requireBuiltin(moduleId: string): unknown {
++      if (process.execArgv.includes('--expose-internals')) {
++        try {
++          return require(moduleId)
++        } catch (_error) {
++          // Keep the native fallback for internals Node does not expose.
++        }
++      }
++      return nativeAddon.requireBuiltin(moduleId)
++    },
++  }
+   const esmModule = addon.requireBuiltin('internal/modules/esm/loader') as {
+     getOrInitializeCascadedLoader(): ModuleLoaderV1 | ModuleLoaderV2
+   }
+--- a/packages/boot/hmr/src/package-manifest.ts
++++ b/packages/boot/hmr/src/package-manifest.ts
+@@ -71,7 +71,9 @@
+   const require = createRequire(import.meta.url)
+   if (process.execArgv.includes('--expose-internals')) {
+     try {
+-      return require(id)
++      // The private realm is hidden even with --expose-internals. Node's test
++      // binding exports the same internalBinding closure needed by this module.
++      return require(id === 'internal/bootstrap/realm' ? 'internal/test/binding' : id)
+     } catch (_error) {
+       // Some internals, such as internal/bootstrap/realm, stay private under --expose-internals.
+     }

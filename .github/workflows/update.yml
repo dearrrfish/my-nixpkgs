@@ -30,10 +30,16 @@ jobs:
 
           for pkg in $PACKAGES; do
             echo "Checking for updates for $pkg..."
+            # Per-package nix-update arguments
+            EXTRA_ARGS=()
+            case "$pkg" in
+              # Follows upstream master rather than tagged releases
+              de/deepseek-harness) EXTRA_ARGS=(--version=branch) ;;
+            esac
             # Try to update the package.
             # --commit: Creates a commit if an update is found
             # --flake: Specifies the flake and attribute
-            if nix run nixpkgs#nix-update -- --flake "$pkg" --commit; then
+            if nix run nixpkgs#nix-update -- --flake "$pkg" --commit "${EXTRA_ARGS[@]}"; then
               echo "Updated $pkg"
             else
               echo "Failed to update $pkg or no update available"
