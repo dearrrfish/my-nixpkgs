@@ -57,7 +57,7 @@ python3Packages.buildPythonApplication rec {
     pytest-asyncio
   ];
 
-  pytestFlagsArray = [ "--asyncio-mode=auto" ];
+  pytestFlags = [ "--asyncio-mode=auto" ];
 
   # Suppress wrapGAppsHook4's own wrapping; merge its args into Python's makeWrapper
   dontWrapGApps = true;
