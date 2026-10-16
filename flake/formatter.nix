@@ -8,6 +8,8 @@
     treefmt = {
       projectRootFile = "flake.nix";
       programs = {
+        ruff-format.enable = true;
+        taplo.enable = true;
         deadnix.enable = true;
         jsonfmt.enable = true;
         nixfmt.enable = true;

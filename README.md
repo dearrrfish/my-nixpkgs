@@ -1,87 +1,73 @@
-[![Donate!][donate github]][github sponsors link]
+# my-nixpkgs
 
-# My Custom Nixpkgs Overlay
+Custom packages, an overlay, and reusable NixOS and Home Manager modules, built
+with flake-parts.
 
-This repository serves as a template for creating your own collection of custom
-Nix expressions, akin to what is done in `nixpkgs`. It includes a `default`
-overlay that exposes all custom packages, facilitating their integration into
-other projects.
+## Packages and overlay
 
-## Usage
+Add the flake to your inputs:
 
-### Setting Up
+```nix
+inputs.my-nixpkgs.url = "github:dearrrfish/my-nixpkgs";
+```
 
-1. Fork this repository.
-1. Begin adding packages to the `pkgs/by-name` directory. Follow the same
-   approach as adding packages in `nixpkgs`. Similar to [RFC140], packages added
-   in this directory will be automatically discovered.
-   - Create a new directory for each package.
-   - Inside each directory, create a `package.nix` file.
-1. Optionally, you can add packages directly to the `pkgs/` directory and
-   manually update the bindings in the `imports/pkgs-all.nix` file.
+Package names include their two-character shard:
 
-### Integrating Your Repository as an Overlay
+```sh
+nix build 'github:dearrrfish/my-nixpkgs#as/askhuman'
+```
 
-To use this repository as an overlay in another project, follow these steps:
+The default overlay keeps these same names under `pkgs.local`:
 
-1. **Add the Repository as an Input**:
+```nix
+{
+  nixpkgs.overlays = [ inputs.my-nixpkgs.overlays.default ];
+  environment.systemPackages = [ pkgs.local."as/askhuman" ];
+}
+```
 
-   Add the following to your `nix` file to include this repository as an input:
+Inspect available outputs with `nix flake show --json`. AskHuman's packaged binary
+currently supports `x86_64-linux`; other packages have their own platform limits.
 
-   ```nix
-   inputs = {
-       my-custom-nixpkgs.url = "repo-url";  # Replace "repo-url" with the actual URL to your repository
-   };
-   ```
+## Home Manager
 
-1. **Include the Overlay in `pkgs`**:
+Import a named module into your Home Manager configuration:
 
-   When constructing `pkgs`, include the overlay as follows:
+```nix
+{
+  imports = [ inputs.my-nixpkgs.homeManagerModules.askhuman ];
+  programs.askhuman = {
+    enable = true;
+    settings.general.theme = "dark";
+  };
+}
+```
 
-   ```nix
-   pkgs = import inputs.nixpkgs {
-     overlays = [
-       inputs.my-custom-nixpkgs.overlays.default
-     ];
-   };
-   ```
+The module uses your Home Manager package set and the repository's AskHuman
+package definition. No overlay is required. Override `programs.askhuman.package`
+when using another compatible package. `homeManagerModules.default` imports all
+provided HM modules; individual programs remain disabled until enabled.
 
-1. **Use Your Packages**:
+AskHuman settings stay writable. Only declared fields are managed; removing a
+field conditionally restores its previous value. Agent integrations and runtime
+secret files are independent opt-ins with additional home-state effects. Read
+[the module guide](docs/modules/askhuman.md) before enabling them.
 
-   Access the packages in your project like this:
+## NixOS modules
 
-   ```nix
-   buildInputs = [ pkgs.example1 pkgs.example2 ];
-   ```
+`nixosModules.default` is the explicit aggregation entry point for future system
+modules. It currently imports no system modules and does not configure an
+AskHuman system service. AskHuman is managed through Home Manager.
 
-### Examples
+## Development
 
-Refer to the dummy projects `example1` and `example2` for practical examples of
-how packages can be structured.
+- [Architecture and adding modules](docs/architecture.md)
+- [AskHuman module guide](docs/modules/askhuman.md)
+- [AskHuman option reference](docs/modules/askhuman-options.md)
+- [Migration and rollback](docs/migration.md)
+- [AskHuman Linux troubleshooting](docs/askhuman.md)
 
-## Going further
-
-- Use the continuous integration service of your choice to build and test your
-  packages
-- Add a binary cache to your repository to speed up builds and avoid
-  recompilation using [Cachix](https://cachix.org/)
-- This project uses a flake framework, we recommend to use
-  [flake-parts](https://flake.parts)
-
-## Contributing
-
-Feel free to contribute by sending pull requests. We are a usually very
-responsive team and we will help you going through your pull request from the
-beginning to the end.
-
-For some reasons, if you can't contribute to the code and willing to help,
-sponsoring is a good, sound and safe way to show us some gratitude for the hours
-we invested in this package.
-
-Sponsor me on [Github][github sponsors link] and/or any of [the
-contributors][6].
-
-[6]: https://github.com/drupol/my-own-nixpkgs/graphs/contributors
-[donate github]: https://img.shields.io/badge/Sponsor-Github-brightgreen.svg?style=flat-square
-[github sponsors link]: https://github.com/sponsors/drupol
-[rfc140]: https://github.com/NixOS/rfcs/pull/140
+Packages live in `pkgs/by-name/<shard>/<name>/package.nix`, using explicit
+`callPackage` dependencies. `flake/` contains flake-parts infrastructure;
+`modules/` contains consumer modules. See [AGENTS.md](AGENTS.md) for contribution
+and verification conventions.

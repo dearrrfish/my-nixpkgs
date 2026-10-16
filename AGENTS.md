@@ -11,24 +11,45 @@ Use its flake outputs and modules rather than assuming upstream Nixpkgs tooling
 or paths exist here.
 
 - `flake.nix` and `flake.lock`: inputs and their pinned revisions.
-- `modules/pkgs-by-name.nix`: automatic package discovery through
+
+- `flake/pkgs-by-name.nix`: automatic package discovery through
   `pkgs-by-name-for-flake-parts`.
+
 - `pkgs/by-name/<shard>/<name>/package.nix`: active package definitions; `<shard>`
   is the lowercased first two characters of `<name>`.
-- `modules/pkgs-all.nix`: explicit package bindings when discovery is insufficient.
-- `modules/overlay.nix`: exposes the flake packages under `pkgs.local` in the
+
+- `flake/pkgs-all.nix`: explicit package bindings when discovery is insufficient.
+
+- `flake/overlay.nix`: exposes the flake packages under `pkgs.local` in the
   default overlay. Preserve this public interface.
-- `modules/systems.nix`: supported flake systems; individual packages may support
+
+- `flake/systems.nix`: supported flake systems; individual packages may support
   fewer systems.
-- `modules/formatter.nix`: treefmt configuration, including nixfmt, deadnix,
+
+- `flake/formatter.nix`: treefmt configuration, including nixfmt, deadnix,
   statix, mdformat, jsonfmt, and yamlfmt.
+
 - `pkgs/disabled/`: packages excluded from automatic discovery. Read its README
   before restoring a package.
+
 - `.github/workflows/ci.yml`: flake checks and package builds on `x86_64-linux`.
+
 - `.github/workflows/update.yml`: scheduled package updates using nix-update.
 
-The README retains some template examples. Confirm behavior against the current
-modules and workflows before relying on those examples.
+- `flake/exports.nix`: explicit consumer module outputs; never recursively import
+  consumer modules through the flake-parts infrastructure tree.
+
+- `modules/home-manager/`: reusable HM modules, including `programs.askhuman`.
+
+- `modules/nixos/`: system-module aggregation root (currently empty).
+
+- `tests/`: real module evaluation and isolated runtime/activation fixtures.
+
+- `docs/modules/askhuman-options.md`: generated option reference; regenerate with
+  `nix run .#generate-module-docs` after public option changes.
+
+Consumer modules must not depend on host-specific helpers or an obligatory
+consumer overlay. Preserve existing slash package keys and `pkgs.local`.
 
 ## Package layout and scope
 
@@ -126,6 +147,16 @@ nix flake check --print-build-logs
 ```
 
 - Documentation-only changes need formatting and diff review, not package builds.
+- For module changes, build `checks.x86_64-linux.module-eval`,
+  `checks.x86_64-linux.askhuman-reconcile`, and
+  `checks.x86_64-linux.askhuman-activation`. These run isolated fixtures; never
+  execute HM activation against the real user home as an unattended test.
+- Build `checks.x86_64-linux.module-docs` after regenerating the option reference.
+  Evaluate `checks.<system>.module-eval.drvPath` for every supported system;
+  distinguish evaluation from native execution.
+- While new files are untracked, use `path:.` and
+  `nix run path:.#formatter.x86_64-linux -- <changed-files>` so Git flake filtering
+  does not hide the new infrastructure.
 - For executable changes, run a safe, upstream-supported smoke test, such as
   `nix run '.#<attribute>' -- --version`. Do not assume every program supports
   `--help`, or launch a service or GUI as an unattended smoke test.
