@@ -1,7 +1,7 @@
 # AskHuman Home Manager module
 
 Import `homeManagerModules.askhuman` and configure `programs.askhuman`. The default
-package is AskHuman 0.14.4 for `x86_64-linux`. A compatible `package` override can
+package is AskHuman 0.14.5 for `x86_64-linux`. A compatible `package` override can
 be used on another supported platform. Importing a disabled module does not
 require the Linux package.
 
@@ -20,8 +20,8 @@ require the Linux package.
 ```
 
 See the generated [complete option reference](askhuman-options.md). The interface
-tracks the [v0.14.4 configuration model](https://github.com/Naituw/AskHuman/blob/2a54e95447d682cc57156f1b44d5412735d4be00/src-tauri/src/config.rs)
-and its Codex Desktop submodel. All 50 ordinary leaves are typed; the five
+tracks the [v0.14.5 configuration model](https://github.com/Naituw/AskHuman/blob/a8c7f8e89353ef044c3c99da58399342f1b0ba0f/src-tauri/src/config.rs)
+and its Codex Desktop and Cursor Desktop submodels. All 51 ordinary leaves are typed; the five
 credential leaves use a separate runtime-source interface.
 
 ## Settings ownership
@@ -216,4 +216,19 @@ hook. This command deliberately invokes the upstream config CLI: it serializes
 the full known schema and can discard unknown future fields. Use a static typed
 HM declaration when you need the module's preservation/recovery guarantees.
 The command runs only when the consumer invokes it; it is not an activation hook
-and does not restart the daemon.
+and does not run during HM activation. Upstream 0.14.5 can start its daemon
+on macOS when Cursor Desktop control is configured.
+
+## Cursor Desktop control in 0.14.5
+
+`settings.cursorDesktop.suppressBackgroundCompletionFollowUp` is a nullable
+boolean for upstream's macOS-only background-completion control. It is unmanaged
+by default. Its application behavior requires a compatible macOS package and is
+not covered by Linux GUI acceptance.
+
+Upstream Cursor mode changes can start a daemon when this control is enabled or
+bridge cleanup is pending. On macOS, the HM adapter refuses native Cursor
+reconciliation in those states rather than starting that daemon during
+activation. Resolve the desktop control and any pending bridge cleanup manually
+in the intended graphical session before enabling native reconciliation. Static
+settings management and other native agents are unaffected.

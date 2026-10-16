@@ -137,6 +137,7 @@ class PackagedCLI(unittest.TestCase):
                     result["channels"]["slack"]["appToken"], "existing-runtime-fixture"
                 )
                 self.assertNotIn("permissions", result)
+                self.assertNotIn("cursorDesktop", result)
                 for file in (home / "state").rglob("*"):
                     if file.is_file():
                         self.assertNotIn(canary.encode(), file.read_bytes(), str(file))

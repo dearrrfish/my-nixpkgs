@@ -2,7 +2,7 @@
 
 For declarative installation, settings and native integrations, use the
 [Home Manager module](modules/askhuman.md). The package currently provides the
-upstream v0.14.4 Linux x86-64 binary.
+upstream v0.14.5 Linux x86-64 binary.
 
 ## WebKitGTK popup environment
 
@@ -12,7 +12,7 @@ Wayland systems. Use the public `bin/AskHuman` launcher.
 
 ## Generated MCP and hook commands
 
-Upstream v0.14.4 still generates multiple integration commands with Rust
+Upstream v0.14.5 still generates multiple integration commands with Rust
 `current_exe()`. After a Nix wrapper executes its ELF binary, that path resolves
 to `.AskHuman-wrapped`, bypassing the public launcher's environment setup.
 

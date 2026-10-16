@@ -1,7 +1,7 @@
 {
-  "version": "0.14.4",
-  "revision": "2a54e95447d682cc57156f1b44d5412735d4be00",
-  "source": "src-tauri/src/config.rs; src-tauri/src/codex_desktop/mod.rs",
+  "version": "0.14.5",
+  "revision": "a8c7f8e89353ef044c3c99da58399342f1b0ba0f",
+  "source": "src-tauri/src/config.rs; src-tauri/src/codex_desktop/mod.rs; src-tauri/src/cursor_desktop/mod.rs",
   "settings": [
     "agentTasks.enabled",
     "agentTasks.permissionPrompt",
@@ -34,6 +34,7 @@
     "codexDesktop.appPath",
     "codexDesktop.codexHome",
     "codexDesktop.launchPreference",
+    "cursorDesktop.suppressBackgroundCompletionFollowUp",
     "experimental.enabled",
     "experimental.verticalQuestions",
     "general.alwaysOnTop",

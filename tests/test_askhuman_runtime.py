@@ -40,6 +40,47 @@ class RuntimeTests(unittest.TestCase):
         path.write_text(json.dumps(value))
         return path
 
+    def test_macos_cursor_desktop_cannot_implicitly_start_daemon(self):
+        manifest = self.manifest | {"integrations": {"cursor": {"mode": "mcp"}}}
+        path = ("cursorDesktop", "suppressBackgroundCompletionFollowUp")
+        with patch.object(runtime.sys, "platform", "darwin"):
+            runtime.preflight_cursor_desktop(
+                manifest, self.home, manifest["integrations"]
+            )
+            declared = manifest | {"settings": {path[0]: {path[1]: True}}}
+            with self.assertRaisesRegex(runtime.Error, "start the daemon"):
+                runtime.preflight_cursor_desktop(
+                    declared, self.home, manifest["integrations"]
+                )
+            config = self.config({path[0]: {path[1]: True}})
+            with self.assertRaises(runtime.Error):
+                runtime.preflight_cursor_desktop(
+                    manifest, self.home, manifest["integrations"]
+                )
+            config.write_text("{}")
+            bridge = self.home / ".askhuman/state/cursor-desktop/123.json"
+            bridge.parent.mkdir(parents=True)
+            bridge.write_text("{}")
+            with self.assertRaises(runtime.Error):
+                runtime.preflight_cursor_desktop(
+                    manifest, self.home, manifest["integrations"]
+                )
+        self.assertFalse(self.state.exists())
+
+    def test_cursor_guard_checks_flag_restored_by_ordinary_ownership(self):
+        path = ("cursorDesktop", "suppressBackgroundCompletionFollowUp")
+        config = self.config({path[0]: {path[1]: True}})
+        declared = self.manifest | {"settings": {path[0]: {path[1]: False}}}
+        with patch.object(runtime.sys, "platform", "darwin"):
+            runtime.run(declared, self.home, self.state)
+            self.assertFalse(json.loads(config.read_text())[path[0]][path[1]])
+            removed = self.manifest | {"integrations": {"cursor": {"mode": "mcp"}}}
+            with patch.object(runtime, "run_cli") as cli:
+                with self.assertRaisesRegex(runtime.Error, "start the daemon"):
+                    runtime.run(removed, self.home, self.state)
+                cli.assert_not_called()
+            self.assertTrue(json.loads(config.read_text())[path[0]][path[1]])
+
     def test_empty_and_dry_run_zero_writes_before_secret_open(self):
         runtime.run(self.manifest, self.home, self.state)
         self.assertEqual(list(self.home.iterdir()), [])
@@ -96,6 +137,9 @@ class RuntimeTests(unittest.TestCase):
                 json.dumps(
                     {
                         "general": {"theme": "dark", "menuBarIcon": "on"},
+                        "cursorDesktop": {
+                            "suppressBackgroundCompletionFollowUp": False
+                        },
                         "channels": {
                             "telegram": {"botToken": "new-canary"},
                             "slack": {"appToken": "keychain:slack"},
@@ -125,6 +169,7 @@ class RuntimeTests(unittest.TestCase):
             runtime.run(disabled, self.home, self.state)
         result = json.loads(config.read_text())
         self.assertEqual(result["general"], {"theme": "light"})
+        self.assertNotIn("cursorDesktop", result)
         self.assertEqual(result["unknown"], original["unknown"])
         self.assertEqual(result["channels"]["slack"]["appToken"], "keychain:slack")
         self.assertEqual(result["channels"]["telegram"]["botToken"], "new-canary")

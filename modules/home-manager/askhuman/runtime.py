@@ -1,4 +1,4 @@
-"""Private activation adapter for AskHuman v0.14.4 (never starts its daemon)."""
+"""Private activation adapter for AskHuman v0.14.5 (never starts its daemon)."""
 
 import argparse
 import base64
@@ -11,6 +11,7 @@ import re
 import shlex
 import stat
 import subprocess
+import sys
 import tempfile
 
 import reconcile as ordinary
@@ -205,6 +206,7 @@ KNOWN = {
         "theme language alwaysOnTop appearAnimation windowEffect speechLanguage speechShortcut popupSubmitKey collaborationStyle collaborationStyleCustomText historyLimit todoHistoryLimit popupSound menuBarIcon popupPrewarm daemonLifecycle".split()
     ),
     "codexDesktop": {"appPath", "codexHome", "launchPreference"},
+    "cursorDesktop": {"suppressBackgroundCompletionFollowUp"},
     "agentTasks": {"enabled", "permissionPrompt"},
     "permissions": {"codexRelaxedShell"},
     "experimental": {"enabled", "verticalQuestions"},
@@ -499,6 +501,27 @@ def normalize_native(integrations, home, executable):
         write_bytes(path, text.encode())
 
 
+def preflight_cursor_desktop(manifest, home, integrations):
+    """v0.14.5 can start a daemon on macOS Cursor mode changes; refuse that path."""
+    if sys.platform != "darwin" or "cursor" not in integrations:
+        return
+    current, _ = ordinary._read(home / ".askhuman/config.json")
+    if current is None:
+        current, _ = ordinary._read(home / ".humaninloop/config.json")
+    path = ("cursorDesktop", "suppressBackgroundCompletionFollowUp")
+    existing = ordinary._get(current or {}, path)
+    declared = ordinary._get(manifest.get("settings", {}), path)
+    bridges = ordinary.safe_path(home / ".askhuman/state/cursor-desktop")
+    cleanup = bridges.exists() and any(
+        file.suffix == ".json" and file.stem.isdecimal() for file in bridges.iterdir()
+    )
+    if existing.get("value") is True or declared.get("value") is True or cleanup:
+        raise Error(
+            "Cursor Desktop control or pending bridge cleanup can start the daemon on macOS; "
+            "resolve it manually before enabling native Cursor reconciliation"
+        )
+
+
 def activate(manifest, home, state, dry_run=False):
     secrets, integrations = validate(manifest)
     # Deliberately before source opens, native preflight and lock creation.
@@ -541,8 +564,12 @@ def activate(manifest, home, state, dry_run=False):
                     import tomlkit
 
                     tomlkit.parse(path.read_text())
+        preflight_cursor_desktop(manifest, home, integrations)
         ordinary.reconcile(manifest, home, state, locked=True)
         provision(secrets, executable, home, state)
+        # Releasing an ordinary declaration may restore a previously enabled
+        # Cursor control flag. Recheck final state before native integration CLI.
+        preflight_cursor_desktop(manifest, home, integrations)
         if not integrations:
             return
         backup_native(paths, state)

@@ -728,7 +728,7 @@ null
 
 ## programs.askhuman.settings
 
-Sparse non-secret AskHuman v0.14.4 settings. Undeclared and unknown settings are preserved in the writable application config.
+Sparse non-secret AskHuman v0.14.5 settings. Undeclared and unknown settings are preserved in the writable application config.
 
 *Type:*
 submodule
@@ -1259,6 +1259,23 @@ Declare upstream codexDesktop.launchPreference. Null leaves this setting unmanag
 
 *Type:*
 null or one of “terminal”, “desktop”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.cursorDesktop.suppressBackgroundCompletionFollowUp
+
+Declare upstream cursorDesktop.suppressBackgroundCompletionFollowUp. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or boolean
 
 *Default:*
 

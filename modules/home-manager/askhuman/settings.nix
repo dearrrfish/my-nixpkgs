@@ -14,7 +14,7 @@ in
 {
   options.programs.askhuman.settings = mkOption {
     default = { };
-    description = "Sparse non-secret AskHuman v0.14.4 settings. Undeclared and unknown settings are preserved in the writable application config.";
+    description = "Sparse non-secret AskHuman v0.14.5 settings. Undeclared and unknown settings are preserved in the writable application config.";
     type = types.submodule {
       options = {
         general.theme = leaf (types.enum [
@@ -97,6 +97,7 @@ in
         permissions.codexRelaxedShell = leaf types.bool "permissions.codexRelaxedShell";
         experimental.enabled = leaf types.bool "experimental.enabled";
         experimental.verticalQuestions = leaf types.bool "experimental.verticalQuestions";
+        cursorDesktop.suppressBackgroundCompletionFollowUp = leaf types.bool "cursorDesktop.suppressBackgroundCompletionFollowUp";
         codexDesktop.appPath = leaf types.str "codexDesktop.appPath";
         codexDesktop.codexHome = leaf types.str "codexDesktop.codexHome";
         codexDesktop.launchPreference = leaf (types.enum [
