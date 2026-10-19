@@ -102,6 +102,7 @@ let
     "do/doubao-murmur"
     "es/escrcpy"
     "fc/fcitx5-vocotype"
+    "ma/magpie"
   ];
   overlayPkgs = import inputs.nixpkgs {
     inherit system;
@@ -123,13 +124,11 @@ let
       if system == "x86_64-linux" then
         let
           askhumanMy = inputs.self.packages.${system}."as/askhuman-my";
-          askhuman = inputs.self.packages.${system}."as/askhuman";
         in
         evaluates withAskHumanMy
         && withAskHumanMy.config.programs.askhuman.package == askhumanMy
         && builtins.elem askhumanMy withAskHumanMy.config.home.packages
-        && lib.hasPrefix "${askhuman.version}-my-" askhumanMy.version
-        && builtins.match ".*-my-[0-9a-f]{7}" askhumanMy.version != null
+        && builtins.match "[0-9.]+-my-[0-9a-f]{7}" askhumanMy.version != null
         && (
           builtins.unsafeDiscardStringContext withAskHumanMy.config.home.activation.askhuman.data
           != builtins.unsafeDiscardStringContext withDefaultPackage.config.home.activation.askhuman.data
