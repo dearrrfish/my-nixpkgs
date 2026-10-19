@@ -42,6 +42,7 @@ jobs:
         shell: bash
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /var/lib/docker /usr/local/share/boost /usr/share/swift
+          sudo systemctl stop tmp.mount || sudo umount -l /tmp || true
           df -h
       - uses: cachix/install-nix-action@v27
         with:
