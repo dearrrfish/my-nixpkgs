@@ -100,6 +100,7 @@ let
     "cl/cli-proxy-api"
     "de/deepseek-harness"
     "do/doubao-murmur"
+    "ds/dsh-desktop"
     "es/escrcpy"
     "fc/fcitx5-vocotype"
     "ma/magpie"
