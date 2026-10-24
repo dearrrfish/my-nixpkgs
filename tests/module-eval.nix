@@ -103,6 +103,7 @@ let
     "ds/dsh-desktop"
     "es/escrcpy"
     "fc/fcitx5-vocotype"
+    "fr/freecontrol2"
     "ma/magpie"
   ];
   overlayPkgs = import inputs.nixpkgs {
