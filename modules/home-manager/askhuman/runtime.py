@@ -184,6 +184,9 @@ def validate(manifest):
 def run_cli(executable, arguments, home):
     env = dict(os.environ)
     env.pop("ASKHUMAN_HOME", None)
+    for key in list(env):
+        if key.startswith("ANTIGRAVITY_") or key.startswith("CODEX_"):
+            env.pop(key, None)
     env.update(
         HOME=str(home),
         CODEX_HOME=str(home / ".codex"),
