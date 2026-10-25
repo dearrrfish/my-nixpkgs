@@ -117,6 +117,7 @@ programs.askhuman.integrations.codex = {
 | Cursor | `cli`, `mcp` | `stop`, `lifecycle` |
 | Grok | `mcp` | `lifecycle` |
 | Pi | `cli` | `stop`, `lifecycle` |
+| Antigravity | `cli`, `mcp` | none |
 
 Capability leaves default to `null`: retain the upstream preference, including
 upstream defaults that may enable a capability. `false` explicitly disables a

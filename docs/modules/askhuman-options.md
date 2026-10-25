@@ -88,6 +88,63 @@ true
 
 - [modules/home-manager/askhuman](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman)
 
+## programs.askhuman.integrations.antigravity
+
+Opt-in upstream antigravity integration. Activation backs up affected private paths. Disabling stops reconciliation and does not uninstall native artifacts.
+
+*Type:*
+submodule
+
+*Default:*
+
+```nix
+{ }
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
+## programs.askhuman.integrations.antigravity.enable
+
+Whether to enable native AskHuman antigravity integration (the complete upstream rules, hooks and MCP bundle).
+
+*Type:*
+boolean
+
+*Default:*
+
+```nix
+false
+```
+
+*Example:*
+
+```nix
+true
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
+## programs.askhuman.integrations.antigravity.mode
+
+Native integration mode. Grok supports only mcp; Pi supports only cli.
+
+*Type:*
+one of “cli”, “mcp”
+
+*Default:*
+
+```nix
+"cli"
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
 ## programs.askhuman.integrations.claude
 
 Opt-in upstream claude integration. Activation backs up affected private paths. Disabling stops reconciliation and does not uninstall native artifacts.

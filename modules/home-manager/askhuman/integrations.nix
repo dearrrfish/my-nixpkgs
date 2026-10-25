@@ -8,6 +8,7 @@ let
     "cursor"
     "grok"
     "pi"
+    "antigravity"
   ];
   nullable =
     description:
@@ -28,11 +29,21 @@ let
         default = if agent == "grok" then "mcp" else "cli";
         description = "Native integration mode. Grok supports only mcp; Pi supports only cli.";
       };
+    }
+    // lib.optionalAttrs (agent != "antigravity") {
       lifecycle = nullable "Declare lifecycle tracking. Null preserves the existing upstream preference.";
     }
-    // lib.optionalAttrs (agent != "grok") {
-      stop = nullable "Declare stop interception. Null preserves the existing upstream preference.";
-    }
+    //
+      lib.optionalAttrs
+        (
+          !builtins.elem agent [
+            "grok"
+            "antigravity"
+          ]
+        )
+        {
+          stop = nullable "Declare stop interception. Null preserves the existing upstream preference.";
+        }
     //
       lib.optionalAttrs
         (builtins.elem agent [

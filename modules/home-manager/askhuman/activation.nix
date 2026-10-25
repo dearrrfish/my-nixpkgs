@@ -28,9 +28,10 @@ let
   integrations = lib.mapAttrs (
     _agent: value:
     {
-      inherit (value) mode lifecycle;
+      inherit (value) mode;
       env = value.mcpEnvironment or { };
     }
+    // lib.optionalAttrs (value ? lifecycle) { inherit (value) lifecycle; }
     // lib.optionalAttrs (value ? permission) { inherit (value) permission; }
     // lib.optionalAttrs (value ? stop) { inherit (value) stop; }
     // lib.optionalAttrs (value ? askQuestion) { inherit (value) askQuestion; }

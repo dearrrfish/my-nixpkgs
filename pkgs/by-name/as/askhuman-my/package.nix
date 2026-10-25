@@ -22,20 +22,20 @@
   libayatana-appindicator,
 }:
 let
-  baseVersion = "0.14.5";
+  baseVersion = "0.15.1";
   nodejs = nodejs_24;
   pnpm = pnpm_10.override { nodejs-slim = nodejs; };
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "askhuman-my";
-  version = "${baseVersion}-my-${builtins.substring 0 7 finalAttrs.src.rev}";
+  version = "${baseVersion}+my-${builtins.substring 0 7 finalAttrs.src.rev}";
 
   src = fetchFromGitHub {
     owner = "dearrrfish";
     repo = "AskHuman";
-    rev = "c1c8b46e6d7768138f46e79ab2431e3658411d38";
+    rev = "7292262f06756a437335701773e2e4bd07b64842";
     fetchLFS = true;
-    hash = "sha256-//EMNKYuwllykWMyB1d7kC0uVOez6td+TNMNrEtl97g=";
+    hash = "sha256-2ApG9kaGLlY+6yZYdi+3jT4GSrBOJf/RM0NXGWxazN4=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -47,11 +47,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
-  cargoHash = "sha256-cMOBuVC2r+xLMskrDt0+yzSyMWZSqwpeyHlMBlw8zAw=";
+  cargoHash = "sha256-Xq6PCO+Wxxq0f6YpB/HIbSydjlC04tzaIPFvgy/SPLk=";
 
   buildFeatures = [ "custom-protocol" ];
 
-  # Stamp the <baseVersion>-my-<short_rev> version into manifests and lockfiles so the
+  # Stamp the <baseVersion>+my-<short_rev> version into manifests and lockfiles so the
   # built binary, daemon handshake, and tray report the branch commit distinctly without
   # mutating upstream's base version in git, while keeping compare_versions normalized.
   # Also patch the hardcoded /usr/bin/env python3 shebang in codex_desktop::runtime::tests.
@@ -63,9 +63,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     substituteInPlace src-tauri/Cargo.lock "$cargoDepsCopy/Cargo.lock" \
       --replace-fail $'name = "humaninloop"\nversion = "${baseVersion}"' \
       $'name = "humaninloop"\nversion = "${finalAttrs.version}"'
-    substituteInPlace src-tauri/src/update/mod.rs \
-      --replace-fail "let pa: Vec<u64> = a.split('.')" \
-      "let (a, b) = (normalize_version(a), normalize_version(b)); let pa: Vec<u64> = a.split('.')"
     substituteInPlace src-tauri/src/codex_desktop/runtime.rs \
       --replace-fail "#!/usr/bin/env python3" "#!${python3}/bin/python3"
   '';

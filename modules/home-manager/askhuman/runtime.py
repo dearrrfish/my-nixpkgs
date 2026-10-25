@@ -23,6 +23,7 @@ MATRIX = {
     "cursor": ({"cli", "mcp"}, {"stop", "lifecycle"}),
     "grok": ({"mcp"}, {"lifecycle"}),
     "pi": ({"cli"}, {"stop", "lifecycle"}),
+    "antigravity": ({"cli", "mcp"}, set()),
 }
 # Exact mutation inventory from upstream paths.rs and integration installers.
 NATIVE = {
@@ -46,6 +47,10 @@ NATIVE = {
         ".grok/hooks/askhuman-lifecycle.json",
     ],
     "pi": [".pi/agent/AGENTS.md", ".pi/agent/extensions/askhuman/index.ts"],
+    "antigravity": [
+        ".gemini/config/rules/askhuman-antigravity.md",
+        ".gemini/config/mcp_config.json",
+    ],
 }
 PREFERENCES = [
     "integration-state.json",

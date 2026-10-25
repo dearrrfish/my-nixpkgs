@@ -267,6 +267,8 @@ class RuntimeTests(unittest.TestCase):
             ("grok", {"mode": "cli"}),
             ("pi", {"mode": "mcp"}),
             ("cursor", {"mode": "cli", "permission": True}),
+            ("antigravity", {"mode": "cli", "lifecycle": True}),
+            ("antigravity", {"mode": "mcp", "stop": True}),
         ):
             with self.subTest(agent=agent), self.assertRaises(runtime.Error):
                 runtime.run(

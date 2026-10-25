@@ -130,7 +130,7 @@ let
         evaluates withAskHumanMy
         && withAskHumanMy.config.programs.askhuman.package == askhumanMy
         && builtins.elem askhumanMy withAskHumanMy.config.home.packages
-        && builtins.match "[0-9.]+-my-[0-9a-f]{7}" askhumanMy.version != null
+        && builtins.match "[0-9.]+\\+my-[0-9a-f]{7}" askhumanMy.version != null
         && (
           builtins.unsafeDiscardStringContext withAskHumanMy.config.home.activation.askhuman.data
           != builtins.unsafeDiscardStringContext withDefaultPackage.config.home.activation.askhuman.data
@@ -193,6 +193,26 @@ let
       };
     };
     invalidPermission = rejects { programs.askhuman.integrations.cursor.permission = true; };
+    invalidAntigravityLifecycle = rejects {
+      programs.askhuman.integrations.antigravity.lifecycle = true;
+    };
+    antigravityModesEvaluate =
+      evaluates (configured [
+        {
+          programs.askhuman.integrations.antigravity = {
+            enable = true;
+            mode = "cli";
+          };
+        }
+      ])
+      && evaluates (configured [
+        {
+          programs.askhuman.integrations.antigravity = {
+            enable = true;
+            mode = "mcp";
+          };
+        }
+      ]);
     unavailablePackage = rejects { programs.askhuman.package = lib.mkForce unsupportedPackage; };
     mcpEnvironmentOnlyInMcp = rejects {
       programs.askhuman.integrations.codex = {
