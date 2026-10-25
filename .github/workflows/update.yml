@@ -33,6 +33,8 @@ jobs:
             # Per-package nix-update arguments
             EXTRA_ARGS=()
             case "$pkg" in
+              # Handled by the dedicated my-nixpkgs branch tracker below
+              as/askhuman-my) continue ;;
               # Follows upstream release tags (dsh-v0.x.y)
               de/deepseek-harness) EXTRA_ARGS=(--version-regex 'dsh-v(.*)' --version=unstable) ;;
             esac
@@ -45,6 +47,76 @@ jobs:
               echo "Failed to update $pkg or no update available"
             fi
           done
+      - name: Update as/askhuman-my from dearrrfish/AskHuman my-nixpkgs branch
+        run: |
+          set -euo pipefail
+          PKG_FILE="pkgs/by-name/as/askhuman-my/package.nix"
+          OLD_VER=$(nix eval --raw '.#packages.x86_64-linux."as/askhuman-my".version')
+          OLD_REV=$(nix eval --raw '.#packages.x86_64-linux."as/askhuman-my".src.rev')
+          NEW_REV=$(git ls-remote https://github.com/dearrrfish/AskHuman.git refs/heads/my-nixpkgs | awk '{print $1}')
+
+          if [ -z "$NEW_REV" ] || [ "$NEW_REV" = "$OLD_REV" ]; then
+            echo "as/askhuman-my is already at latest my-nixpkgs revision ($OLD_REV)"
+            exit 0
+          fi
+
+          NEW_BASE=$(curl -fsSL "https://raw.githubusercontent.com/dearrrfish/AskHuman/${NEW_REV}/package.json" | jq -r '.version')
+          SHORT_REV="${NEW_REV:0:7}"
+          NEW_VER="${NEW_BASE}+my-${SHORT_REV}"
+          echo "Updating as/askhuman-my: $OLD_VER -> $NEW_VER ($NEW_REV)"
+
+          python3 - "$PKG_FILE" "$NEW_BASE" "$NEW_REV" <<'EOF'
+          import pathlib, re, sys
+          p = pathlib.Path(sys.argv[1])
+          base, rev = sys.argv[2], sys.argv[3]
+          text = p.read_text()
+          text = re.sub(r'baseVersion = "[^"]+";', f'baseVersion = "{base}";', text, count=1)
+          text = re.sub(r'rev = "[0-9a-f]{40}";', f'rev = "{rev}";', text, count=1)
+          text = re.sub(r'(fetchLFS = true;\n\s*hash = )"[^"]+";', r'\1lib.fakeHash;', text, count=1)
+          p.write_text(text)
+          EOF
+
+          extract_hash() {
+            sed -nE 's/.*got:[[:space:]]*(sha256-[A-Za-z0-9+/=]+).*/\1/p' | tail -n 1
+          }
+
+          SRC_HASH=$(nix build '.#packages.x86_64-linux."as/askhuman-my".src' 2>&1 | extract_hash)
+          python3 - "$PKG_FILE" "$SRC_HASH" <<'EOF'
+          import pathlib, sys
+          p = pathlib.Path(sys.argv[1])
+          p.write_text(p.read_text().replace("hash = lib.fakeHash;", f'hash = "{sys.argv[2]}";', 1))
+          EOF
+
+          if ! nix build '.#packages.x86_64-linux."as/askhuman-my".pnpmDeps' --no-link >/dev/null 2>&1; then
+            python3 - "$PKG_FILE" <<'EOF'
+          import pathlib, re, sys
+          p = pathlib.Path(sys.argv[1])
+          p.write_text(re.sub(r'(fetcherVersion = 3;\n\s*hash = )"[^"]+";', r'\1lib.fakeHash;', p.read_text(), count=1))
+          EOF
+            PNPM_HASH=$(nix build '.#packages.x86_64-linux."as/askhuman-my".pnpmDeps' 2>&1 | extract_hash)
+            python3 - "$PKG_FILE" "$PNPM_HASH" <<'EOF'
+          import pathlib, sys
+          p = pathlib.Path(sys.argv[1])
+          p.write_text(p.read_text().replace("hash = lib.fakeHash;", f'hash = "{sys.argv[2]}";', 1))
+          EOF
+          fi
+
+          if ! nix build '.#packages.x86_64-linux."as/askhuman-my".cargoDeps' --no-link >/dev/null 2>&1; then
+            python3 - "$PKG_FILE" <<'EOF'
+          import pathlib, re, sys
+          p = pathlib.Path(sys.argv[1])
+          p.write_text(re.sub(r'cargoHash = "[^"]+";', 'cargoHash = lib.fakeHash;', p.read_text(), count=1))
+          EOF
+            CARGO_HASH=$(nix build '.#packages.x86_64-linux."as/askhuman-my".cargoDeps' 2>&1 | extract_hash)
+            python3 - "$PKG_FILE" "$CARGO_HASH" <<'EOF'
+          import pathlib, sys
+          p = pathlib.Path(sys.argv[1])
+          p.write_text(p.read_text().replace("cargoHash = lib.fakeHash;", f'cargoHash = "{sys.argv[2]}";', 1))
+          EOF
+          fi
+
+          git add "$PKG_FILE"
+          git commit -m "as/askhuman-my: ${OLD_VER} -> ${NEW_VER}"
       - name: Push changes
         run: |
           git push
