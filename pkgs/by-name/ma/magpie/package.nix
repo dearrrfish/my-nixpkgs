@@ -253,6 +253,10 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/provider/codex_keychain_ask_unix_test.go \
       --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
 
+    substituteInPlace internal/library/mcp_check_wsl_test.go \
+      --replace-fail 'c.Path, c.Args = "/usr/bin/env", append([]string{"/usr/bin/env"' \
+                     'c.Path, c.Args = "${coreutils}/bin/env", append([]string{"${coreutils}/bin/env"'
+
     substituteInPlace internal/proc/path_other_test.go \
       --replace-fail 'ps -o pgid= -p $$ | tr -d' '${procps}/bin/ps -o pgid= -p $$ | ${coreutils}/bin/tr -d' \
       --replace-fail 'ps -o sess= -p $$ | tr -d' '${procps}/bin/ps -o sess= -p $$ | ${coreutils}/bin/tr -d' \
