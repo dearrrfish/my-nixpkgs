@@ -19,10 +19,12 @@
   xdg-utils,
   versionCheckHook,
   coreutils,
+  gnused,
   dbus,
   bash,
   python3,
   procps,
+  nodejs,
   withGui ? stdenv.hostPlatform.isLinux,
   callPackage,
 }:
@@ -83,6 +85,8 @@ buildGoModule (finalAttrs: {
     bash
     coreutils
     dbus
+    gnused
+    nodejs
     procps
     python3
   ];
@@ -253,6 +257,12 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/provider/codex_keychain_ask_unix_test.go \
       --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
 
+    # The agy shell function runs in a distro whose PATH has sed and head; the
+    # fixture narrows PATH to the host's, where Nix provides neither.
+    substituteInPlace internal/agent/wsl_agy_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin"'
+
+    # Patch only the host-side fake exec; the expected WSL argv stays as upstream.
     substituteInPlace internal/library/mcp_check_wsl_test.go \
       --replace-fail 'c.Path, c.Args = "/usr/bin/env", append([]string{"/usr/bin/env"' \
                      'c.Path, c.Args = "${coreutils}/bin/env", append([]string{"${coreutils}/bin/env"'
