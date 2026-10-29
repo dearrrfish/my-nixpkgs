@@ -29,20 +29,20 @@ stdenv.mkDerivation (
   {
     pname = "deepseek-harness";
     # Tracks upstream releases; keep in sync with apps/cli/package.json at `rev`.
-    version = "0.2.1-rc.3";
+    version = "0.2.2-alpha.2";
 
     src = fetchFromGitHub {
       owner = "deepseek-ai";
       repo = "deepseek-harness";
-      rev = "dsh-v0.2.1-rc.3";
-      hash = "sha256-wNwpit8WCjltafq+1JFTTFFbH05No60ImlmoJpVz2RQ=";
+      rev = "dsh-v0.2.2-alpha.2";
+      hash = "sha256-KxEyrXuFwEKXney6ngmuEMp1djxPJ0F6duVZgBJ+fI0=";
     };
 
     pnpmDeps = fetchPnpmDeps {
       inherit (finalAttrs) pname version src;
       inherit pnpm;
       fetcherVersion = 4;
-      hash = "sha256-C9Aw9AS4r7zubaEuT6mLXQ+AhhMVlTxPZRKTpzRUkcU=";
+      hash = "sha256-ashO+/gZlIz+hoU9o/YSwuqJfiG75ocSMHHZJrXgscg=";
       # pnpm 11 must use our locked manager, not download upstream's patch version.
       pnpm_config_pm_on_fail = "ignore";
     };
