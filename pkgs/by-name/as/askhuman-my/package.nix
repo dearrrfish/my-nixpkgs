@@ -34,21 +34,21 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "dearrrfish";
     repo = "AskHuman";
-    rev = "66e5db18e2d7b3c94203338eb2fb9b8ec7adb98a";
+    rev = "3cbe31b6867e3ede00a758543257463ffc50dea4";
     fetchLFS = true;
-    hash = "sha256-zvPFMoLNjyC5NW1Gbne9yN+T6CZPwuTYtc0ts6Uvj4Q=";
+    hash = "sha256-Qq1S7atx8LlJfg+li3UqtQb7At9AhDBoH56OSVOPAr0=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     inherit pnpm;
     fetcherVersion = 3;
-    hash = "sha256-IBH1jniSjOC8/sBxuuuPEaDdgUQbkgjYhxFKhlsAR0Q=";
+    hash = "sha256-rLb4NQPilzeMyaxLenxIdj760a6IJlpBlrsFy6sb3q8=";
   };
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
-  cargoHash = "sha256-sOsIWtFEbyDrKbLbasLL+GGFCRFH7Qbezf5UbazVH9M=";
+  cargoHash = "sha256-TCs4xY/Rrt5JJCwocdT5Fj4+RYWrQfgQYaGzNpGe9Ys=";
 
   buildFeatures = [ "custom-protocol" ];
 
@@ -64,7 +64,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     substituteInPlace src-tauri/Cargo.lock "$cargoDepsCopy/Cargo.lock" \
       --replace-fail $'name = "humaninloop"\nversion = "${baseVersion}"' \
       $'name = "humaninloop"\nversion = "${finalAttrs.version}"'
-    substituteInPlace src-tauri/src/codex_desktop/runtime.rs src-tauri/src/codex_desktop/models.rs \
+    substituteInPlace \
+      src-tauri/src/codex_desktop/runtime.rs \
+      src-tauri/src/codex_desktop/models.rs \
+      src-tauri/src/agents/codex_cli.rs \
       --replace-fail "#!/usr/bin/env python3" "#!${python3}/bin/python3"
   '';
 
