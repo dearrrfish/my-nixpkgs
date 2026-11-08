@@ -211,13 +211,16 @@ def run_cli(executable, arguments, home):
 # inventory are user data, never defaults synthesized by CLI serialization.
 KNOWN = {
     "general": set(
-        "theme language alwaysOnTop appearAnimation windowEffect speechLanguage speechShortcut popupSubmitKey collaborationStyle collaborationStyleCustomText historyLimit todoHistoryLimit popupSound menuBarIcon popupPrewarm daemonLifecycle".split()
+        "theme language alwaysOnTop appearAnimation windowEffect speechLanguage speechShortcut popupSubmitKey collaborationStyle collaborationStyleCustomText historyLimit todoHistoryLimit popupSound menuBarIcon popupPrewarm daemonLifecycle away quickReplies".split()
     ),
+    "general.away": {"capsule", "welcomeBack", "pushAfterSecs"},
     "codexDesktop": {"appPath", "codexHome", "launchPreference"},
-    "cursorDesktop": {"suppressBackgroundCompletionFollowUp"},
-    "agentTasks": {"enabled", "permissionPrompt"},
+    "cursorDesktop": {"suppressBackgroundCompletionFollowUp", "launchPreference"},
+    "agentTasks": {"enabled", "permissionPrompt", "cursorMax"},
+    "agentTasks.cursorMax": {"policy", "plan"},
     "permissions": {"codexRelaxedShell"},
     "experimental": {"enabled", "verticalQuestions"},
+    "todoSync": {"deviceName", "pollMinutes"},
     "channels": {
         "autoActivation",
         "autoEndWatch",
@@ -226,6 +229,7 @@ KNOWN = {
         "dingding",
         "feishu",
         "slack",
+        "ios",
     },
     "channels.popup": set(
         "enabled windowMode width height rememberSize previewWidth sidebarWidth".split()
@@ -236,6 +240,17 @@ KNOWN = {
     ),
     "channels.feishu": {"enabled", "appId", "openId", "baseUrl", "appSecret"},
     "channels.slack": {"enabled", "userId", "botToken", "appToken"},
+    "channels.ios": {
+        "enabled",
+        "host",
+        "port",
+        "wsPort",
+        "username",
+        "password",
+        "relayUrl",
+        "macName",
+        "alertAfterSecs",
+    },
 }
 
 
