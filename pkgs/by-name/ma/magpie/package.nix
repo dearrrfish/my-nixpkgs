@@ -21,6 +21,7 @@
   coreutils,
   gnused,
   gawk,
+  git,
   dbus,
   bash,
   python3,
@@ -87,6 +88,7 @@ buildGoModule (finalAttrs: {
     coreutils
     dbus
     gawk
+    git
     gnused
     nodejs
     procps
@@ -302,6 +304,12 @@ buildGoModule (finalAttrs: {
     # Exclude Go modules vendor directory unpacked by buildGoModule from internal source lints
     substituteInPlace internal/proc/proc_test.go \
       --replace-fail 'd.Name() == "node_modules"' 'd.Name() == "node_modules" || d.Name() == "vendor"'
+
+    substituteInPlace internal/proc/reap_test.go \
+      --replace-fail 'd.Name() == "node_modules"' 'd.Name() == "node_modules" || d.Name() == "vendor"'
+
+    substituteInPlace internal/proc/folder_linux_test.go \
+      --replace-fail 'bin+":/bin:/usr/bin"' 'bin+":/bin:/usr/bin:${coreutils}/bin"'
 
     substituteInPlace internal/sqlitedb/sqlitedb_test.go \
       --replace-fail 'd.Name() == "node_modules"' 'd.Name() == "node_modules" || d.Name() == "vendor"'
