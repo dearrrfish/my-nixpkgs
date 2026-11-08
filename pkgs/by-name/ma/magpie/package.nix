@@ -99,6 +99,10 @@ buildGoModule (finalAttrs: {
     "-X main.version=${finalAttrs.version}"
   ];
 
+  checkFlags = [
+    "-timeout=30m"
+  ];
+
   # Nix wrapper scripts execute .magpie-wrapped. Re-invoking or registering
   # os.Executable() directly would bypass the wrapper's environment setup
   # (such as GTK/WebKit runtime variables and MAGPIE_BUN).
