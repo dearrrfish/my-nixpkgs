@@ -20,6 +20,7 @@
   versionCheckHook,
   coreutils,
   gnused,
+  gawk,
   dbus,
   bash,
   python3,
@@ -85,6 +86,7 @@ buildGoModule (finalAttrs: {
     bash
     coreutils
     dbus
+    gawk
     gnused
     nodejs
     procps
@@ -205,13 +207,26 @@ buildGoModule (finalAttrs: {
 
     substituteInPlace internal/agent/omp_wsl_key_test.go \
       --replace-fail '#!/usr/bin/env bun' '#!${coreutils}/bin/env bun' \
-      --replace-fail '":/usr/bin:/bin"' '":${coreutils}/bin:${bash}/bin"'
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
 
     substituteInPlace internal/agent/wsl_nvm_test.go \
-      --replace-fail '":/usr/bin:/bin"' '":${coreutils}/bin:${bash}/bin"'
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
 
     substituteInPlace internal/agent/wsl_link_test.go \
-      --replace-fail '"PATH=/usr/bin:/bin"' '"PATH=/usr/bin:/bin:${coreutils}/bin"'
+      --replace-fail '"PATH=/usr/bin:/bin"' '"PATH=/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
+
+    substituteInPlace internal/agent/wsl_nodebins_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"' \
+      --replace-fail '"PATH=/usr/bin:/bin:"' '"PATH=/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin:"'
+
+    substituteInPlace internal/agent/wsl_winpath_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
+
+    substituteInPlace internal/agent/wsl_agy_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
+
+    substituteInPlace internal/agent/cliupdate_opencode2_test.go \
+      --replace-fail '/bin/cat' '${coreutils}/bin/cat'
 
     # Modern bash (5+) execs the last command in a non-interactive shell. When
     # cat redirects stdout to /dev/null with no background jobs holding stdout,
@@ -299,11 +314,6 @@ buildGoModule (finalAttrs: {
 
     substituteInPlace internal/provider/codex_keychain_ask_unix_test.go \
       --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
-
-    # The agy shell function runs in a distro whose PATH has sed and head; the
-    # fixture narrows PATH to the host's, where Nix provides neither.
-    substituteInPlace internal/agent/wsl_agy_test.go \
-      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin"'
 
     # Patch only the host-side fake exec; the expected WSL argv stays as upstream.
     substituteInPlace internal/library/mcp_check_wsl_test.go \
