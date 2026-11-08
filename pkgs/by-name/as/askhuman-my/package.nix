@@ -23,7 +23,7 @@
   libayatana-appindicator,
 }:
 let
-  baseVersion = "0.16.0";
+  baseVersion = "0.17.0";
   nodejs = nodejs_24;
   pnpm = pnpm_10.override { nodejs-slim = nodejs; };
 in
@@ -34,9 +34,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "dearrrfish";
     repo = "AskHuman";
-    rev = "3cbe31b6867e3ede00a758543257463ffc50dea4";
+    rev = "eeed12ea45ed658e802cd3e7210ed7de2c4e009b";
     fetchLFS = true;
-    hash = "sha256-Qq1S7atx8LlJfg+li3UqtQb7At9AhDBoH56OSVOPAr0=";
+    hash = "sha256-qcEiRmzU6QQTSJXwL8w/5O45KyU02yJLNJ/gX+NwL44=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -48,7 +48,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
-  cargoHash = "sha256-TCs4xY/Rrt5JJCwocdT5Fj4+RYWrQfgQYaGzNpGe9Ys=";
+  cargoHash = "sha256-Z7N1QDfaRcnit2PTg/++cVsfp4Idfr9azFPTn/jxxsg=";
 
   buildFeatures = [ "custom-protocol" ];
 
