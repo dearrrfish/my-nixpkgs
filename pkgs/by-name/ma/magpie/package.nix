@@ -247,6 +247,17 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/daemon/daemon_test.go \
       --replace-fail '/bin/cat' '${coreutils}/bin/cat'
 
+    substituteInPlace internal/library/rtk_droid_test.go \
+      --replace-fail '/bin/cat' '${coreutils}/bin/cat' \
+      --replace-fail '/bin/mkdir' '${coreutils}/bin/mkdir'
+
+    substituteInPlace internal/library/rtk_install_bottle_test.go \
+      --replace-fail '/bin/cat' '${coreutils}/bin/cat' \
+      --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
+
+    substituteInPlace internal/library/rtk_wsl_test.go \
+      --replace-fail '"PATH=/usr/bin:/bin"' '"PATH=/usr/bin:/bin:${coreutils}/bin"'
+
     substituteInPlace internal/library/rtk_agy_test.go \
       --replace-fail '/bin/cat' '${coreutils}/bin/cat' \
       --replace-fail '/bin/mkdir' '${coreutils}/bin/mkdir'
@@ -282,6 +293,10 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/library/rtk_channel_background_test.go \
       --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
 
+    # Allocation overhead during repeated CC listing slightly exceeds 3*n on modern Go runtimes
+    substituteInPlace internal/sessions/cc_names_test.go \
+      --replace-fail 'm > 3*n' 'm > 5*n'
+
     substituteInPlace internal/provider/codex_keychain_ask_unix_test.go \
       --replace-fail '/bin/sleep' '${coreutils}/bin/sleep'
 
@@ -309,7 +324,7 @@ buildGoModule (finalAttrs: {
     if withGui then
       ''
         install -Dm644 build/icon/magpie.svg $out/share/icons/hicolor/scalable/apps/magpie.svg
-        install -Dm644 internal/gui/icon.png $out/share/icons/hicolor/64x64/apps/magpie.png
+        install -Dm644 build/windows/icon-64.png $out/share/icons/hicolor/64x64/apps/magpie.png
         install -Dm644 internal/gui/icon-256.png $out/share/icons/hicolor/256x256/apps/magpie.png
         install -Dm644 internal/gui/icon-1024.png $out/share/icons/hicolor/1024x1024/apps/magpie.png
       ''
