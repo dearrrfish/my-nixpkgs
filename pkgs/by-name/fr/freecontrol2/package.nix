@@ -21,21 +21,21 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "freecontrol2";
-  version = "2.4.1";
+  version = "2.5.0";
 
   src = fetchFromGitHub {
     owner = "pdone";
     repo = "FreeControl2";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-SFIqvXN3XNXUHDMimQ4Jmh7l+2U/UDIwZ2VR9KiGkKw=";
+    hash = "sha256-kfrDGNk2bm8s8ygSDQBkCMTSCiP4lTlEMdMBA1J6uuY=";
   };
 
   npmDeps = fetchNpmDeps {
     inherit (finalAttrs) src;
-    hash = "sha256-wO/fwZSjvfV8mEHwJagTKy2BpTmeMpYo8xNlKw9fAaQ=";
+    hash = "sha256-uhchRWzVenmqTtt62ajeVRAHxY65T3rfxrK46DzLiDg=";
   };
 
-  cargoHash = "sha256-vJQ9n5ckRe1GPuAH0T7Fkv1TBVROBAMhyxXF2tylDso=";
+  cargoHash = "sha256-0dF5qKa04XQa3//R94bdHiWi6n2ZYuZY2K/tfsK3vKk=";
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = "src-tauri";
