@@ -34,9 +34,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "dearrrfish";
     repo = "AskHuman";
-    rev = "344d5670cd84887a7b334de345a0feac2187ef5d";
+    rev = "355781f8a9381a66db484ecc22bcc9d8cbed66b2";
     fetchLFS = true;
-    hash = "sha256-AoCJto3UcvYBhxJr+etgg4QD8MEPE0kWHcFXPK5l5Ag=";
+    hash = "sha256-+r7mFVWE3olVCWDsR8Wa4/PRmjW573H3p4Gfc8DnNXU=";
   };
 
   pnpmDeps = fetchPnpmDeps {
