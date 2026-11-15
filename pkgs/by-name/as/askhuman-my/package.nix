@@ -34,9 +34,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   src = fetchFromGitHub {
     owner = "dearrrfish";
     repo = "AskHuman";
-    rev = "a68e1de2f10bab79ef4bc3efaaa8773e536e5b47";
+    rev = "ff3636924f553b9366816380761da37680fe5dd3";
     fetchLFS = true;
-    hash = "sha256-moXJ1V0pKN01R2eiwJznCs3xZZTj7DXdKPrq6bTChmE=";
+    hash = "sha256-ZQlfnI2y/VwdYc25UOyWbYGxAaTsXr801dZEUEet2zo=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -48,7 +48,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
-  cargoHash = "sha256-OuGp2mmNe06x2YB5kSxPivJ026obZPhD1P5TBUC4KOo=";
+  cargoHash = "sha256-wV/b025q5UYAYS+PjC/XtqZ0X/rIM5mo2meSGRA29yI=";
 
   buildFeatures = [ "custom-protocol" ];
 
