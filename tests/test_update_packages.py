@@ -82,6 +82,11 @@ class PackageUpdateTests(unittest.TestCase):
         self.assertEqual(output, "failed=1\n")
         self.assertEqual(calls, "")
 
+    def test_updates_use_locked_toolchain(self):
+        _, output, calls = self.run_update("ds/dsh-desktop")
+        self.assertEqual(output, "failed=0\n")
+        self.assertIn("run --inputs-from . nixpkgs#nix-update -- --flake", calls)
+
     def test_desktop_updates_only_stable_tags(self):
         _, output, calls = self.run_update("ds/dsh-desktop")
         self.assertEqual(output, "failed=0\n")
