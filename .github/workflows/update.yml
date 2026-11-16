@@ -75,7 +75,9 @@ jobs:
             # Try to update the package.
             # --commit: Creates a commit if an update is found
             # --flake: Specifies the flake and attribute
-            if nix run nixpkgs#nix-update -- --flake "$pkg" --commit "${EXTRA_ARGS[@]}"; then
+            # 使用锁定的工具链：nix-update 1.16.0 无法读取 Nix 2.35 尚未物化的源码。
+            # https://github.com/Mic92/nix-update/issues/687
+            if nix run --inputs-from . nixpkgs#nix-update -- --flake "$pkg" --commit "${EXTRA_ARGS[@]}"; then
               echo "Updated $pkg"
             else
               echo "::error::Failed to update $pkg; restoring its package directory"

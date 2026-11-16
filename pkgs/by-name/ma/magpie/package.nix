@@ -47,6 +47,8 @@ buildGoModule (finalAttrs: {
   excludedPackages = [
     "build/icon"
     "internal/gui/genpurposes"
+    # 根模块通过 replace 使用此嵌套模块，不能将其作为根模块子包构建。
+    "third_party/jsonschema"
   ];
 
   env = {
@@ -231,6 +233,10 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/agent/wsl_agy_test.go \
       --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin:${gawk}/bin:${bash}/bin"'
 
+    # 这些 shell 夹具重置 PATH，需显式保留解析模型配置所用的工具。
+    substituteInPlace internal/agent/agy_posix_test.go internal/agent/plugged_launch_run_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":/usr/bin:/bin:${coreutils}/bin:${gnused}/bin"'
+
     substituteInPlace internal/agent/cliupdate_opencode2_test.go \
       --replace-fail '/bin/cat' '${coreutils}/bin/cat'
 
@@ -290,6 +296,13 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/library/rtk_upgrade_test.go \
       --replace-fail '/bin/cat' '${coreutils}/bin/cat'
 
+    substituteInPlace internal/library/rtk_windows_release_test.go \
+      --replace-fail '/bin/cat' '${coreutils}/bin/cat'
+
+    substituteInPlace internal/library/bili_test.go \
+      --replace-fail '/bin/mkdir' '${coreutils}/bin/mkdir' \
+      --replace-fail '/bin/chmod' '${coreutils}/bin/chmod'
+
     substituteInPlace internal/agent/zed_credential_secret_test.go \
       --replace-fail '"--session"' '"--config-file=${dbus}/share/dbus-1/session.conf"'
 
@@ -300,6 +313,10 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/gateway/claude_client_cache_test.go \
       --replace-fail 'instructions\\u003e\nshared\n\\u003c/external_system_instructions\\u003e\n\n\"' \
                      'instructions\\u003e\\nshared\\n\\u003c/external_system_instructions\\u003e\\n\\n\"'
+
+    # buildGoModule 生成的 vendor 不属于本项目的源码风格检查范围。
+    substituteInPlace lazyre_test.go \
+      --replace-fail 'd.Name() == "node_modules"' 'd.Name() == "node_modules" || d.Name() == "vendor"'
 
     # Exclude Go modules vendor directory unpacked by buildGoModule from internal source lints
     substituteInPlace internal/proc/proc_test.go \
