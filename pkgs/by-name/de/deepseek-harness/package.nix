@@ -29,13 +29,13 @@ stdenv.mkDerivation (
   {
     pname = "deepseek-harness";
     # Tracks upstream releases; keep in sync with apps/cli/package.json at `rev`.
-    version = "0.2.2-rc.2";
+    version = "0.2.2-rc.5";
 
     src = fetchFromGitHub {
       owner = "deepseek-ai";
       repo = "deepseek-harness";
-      rev = "dsh-v0.2.2-rc.2";
-      hash = "sha256-lbRmFifO6+8YKn8kaR7gQzKeUQh9YBFu9wH/dWJ+3MA=";
+      rev = "dsh-v0.2.2-rc.5";
+      hash = "sha256-ZfFJfeLcPNOV8UPezxJOvDiwxyFAf5QUuZ7LywSiseY=";
     };
 
     pnpmDeps = fetchPnpmDeps {
