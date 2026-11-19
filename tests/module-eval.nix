@@ -96,7 +96,6 @@ let
   };
   expectedPackages = [
     "as/askhuman"
-    "as/askhuman-my"
     "cl/cli-proxy-api"
     "de/deepseek-harness"
     "do/doubao-murmur"
@@ -111,33 +110,11 @@ let
     inherit system;
     overlays = [ inputs.self.overlays.default ];
   };
-  withAskHumanMy = home [
-    {
-      programs.askhuman = {
-        enable = true;
-        package = inputs.self.packages.${system}."as/askhuman-my";
-      };
-    }
-  ];
   results = {
     disabledDoesNotForcePackage = evaluates disabled;
     standalonePackageOverride =
       evaluates enabled && builtins.elem fixturePackage enabled.config.home.packages;
-    askhumanMyPackageOverride =
-      if system == "x86_64-linux" then
-        let
-          askhumanMy = inputs.self.packages.${system}."as/askhuman-my";
-        in
-        evaluates withAskHumanMy
-        && withAskHumanMy.config.programs.askhuman.package == askhumanMy
-        && builtins.elem askhumanMy withAskHumanMy.config.home.packages
-        && builtins.match "[0-9.]+\\+my-[0-9a-f]{7}" askhumanMy.version != null
-        && (
-          builtins.unsafeDiscardStringContext withAskHumanMy.config.home.activation.askhuman.data
-          != builtins.unsafeDiscardStringContext withDefaultPackage.config.home.activation.askhuman.data
-        )
-      else
-        !(evaluates withAskHumanMy);
+    retiredPackageAbsent = !(inputs.self.packages.${system} ? "as/askhuman-my");
     mergedOptions =
       evaluates merged
       && merged.config.programs.askhuman.settings.general.theme == "system"

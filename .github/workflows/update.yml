@@ -25,9 +25,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - name: Test update workflow helpers
         run: |
-          python3 -I tests/test_update_hash.py
           python3 -I tests/test_update_packages.py
-          python3 -I tests/test_askhuman_update.py
       - name: Update Packages
         id: packages
         env:
@@ -43,8 +41,6 @@ jobs:
             # Per-package nix-update arguments
             EXTRA_ARGS=()
             case "$pkg" in
-              # Handled by the dedicated my-nixpkgs branch tracker below
-              as/askhuman-my) continue ;;
               # Follows upstream release tags (dsh-v0.x.y)
               de/deepseek-harness) EXTRA_ARGS=(--version-regex 'dsh-v(.*)' --version=unstable) ;;
               # NEXT releases use different assets and may be marked stable upstream.
@@ -86,125 +82,6 @@ jobs:
             fi
           done
           echo "failed=$FAILED" >> "$GITHUB_OUTPUT"
-      - name: Update as/askhuman-my from dearrrfish/AskHuman my-nixpkgs branch
-        run: |
-          set -euo pipefail
-          PKG_FILE="pkgs/by-name/as/askhuman-my/package.nix"
-          OLD_VER=$(nix eval --raw '.#packages.x86_64-linux."as/askhuman-my".version')
-          OLD_REV=$(nix eval --raw '.#packages.x86_64-linux."as/askhuman-my".src.rev')
-          NEW_REV=$(git ls-remote https://github.com/dearrrfish/AskHuman.git refs/heads/my-nixpkgs | awk '{print $1}')
-
-          if [[ ! "$NEW_REV" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "Could not resolve the my-nixpkgs branch revision" >&2
-            exit 1
-          fi
-          if [ "$NEW_REV" = "$OLD_REV" ]; then
-            echo "as/askhuman-my is already at latest my-nixpkgs revision ($OLD_REV)"
-            exit 0
-          fi
-
-          OLD_SRC=$(nix build '.#packages.x86_64-linux."as/askhuman-my".src' --no-link --print-out-paths)
-          NEW_BASE=$(curl -fsSL "https://raw.githubusercontent.com/dearrrfish/AskHuman/${NEW_REV}/package.json" | jq -r '.version')
-          SHORT_REV="${NEW_REV:0:7}"
-          NEW_VER="${NEW_BASE}+my-${SHORT_REV}"
-          echo "Updating as/askhuman-my: $OLD_VER -> $NEW_VER ($NEW_REV)"
-
-          python3 - "$PKG_FILE" "$NEW_BASE" "$NEW_REV" <<'EOF'
-          import pathlib, re, sys
-          p = pathlib.Path(sys.argv[1])
-          base, rev = sys.argv[2], sys.argv[3]
-          text = p.read_text()
-          text = re.sub(r'baseVersion = "[^"]+";', f'baseVersion = "{base}";', text, count=1)
-          text = re.sub(r'rev = "[0-9a-f]{40}";', f'rev = "{rev}";', text, count=1)
-          text = re.sub(r'(fetchLFS = true;\n\s*hash = )"[^"]+";', r'\1lib.fakeHash;', text, count=1)
-          p.write_text(text)
-          EOF
-
-          discover_hash() {
-            local target="$1" drv output status
-            # Cargo 的实际 FOD 位于 vendorStaging，外层 cargoDeps 负责整理目录。
-            drv=$(nix eval --raw "$target" --apply 'd: (d.vendorStaging or d).drvPath') || return "$?"
-            if output=$(nix build "$target" --no-link --print-build-logs --log-format raw 2>&1); then
-              printf 'Expected a hash mismatch for %s, but the build succeeded\n' "$target" >&2
-              return 1
-            else
-              status=$?
-            fi
-            printf '%s\n' "$output" >&2
-            python3 - "$drv" "$status" 3<<< "$output" <<'PY'
-          import base64, binascii, re, sys
-
-          drv, status = sys.argv[1:]
-          with open(3) as log:
-              output = log.read()
-          mismatches = re.findall(
-              r"hash mismatch in fixed-output derivation ['‘]([^'’\n]+)['’]:\s*"
-              r"specified:\s*(sha256-[A-Za-z0-9+/=]+)\s*"
-              r"got:\s*(sha256-[A-Za-z0-9+/=]+)", output)
-          if (len(mismatches) != 1 or output.count("hash mismatch in fixed-output derivation") != 1
-                  or mismatches[0][0] != drv
-                  or mismatches[0][1] != "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="):
-              sys.exit(f"Build exited {status} without a unique fake-hash mismatch for {drv}")
-          value = mismatches[0][2]
-          try:
-              digest = base64.b64decode(value.removeprefix("sha256-"), validate=True)
-          except binascii.Error:
-              sys.exit("Invalid SHA-256 SRI hash")
-          if len(digest) != 32 or value == mismatches[0][1]:
-              sys.exit("Invalid or unchanged SHA-256 SRI hash")
-          print(value)
-          PY
-          }
-
-          SRC_HASH=$(discover_hash '.#packages.x86_64-linux."as/askhuman-my".src')
-          python3 - "$PKG_FILE" "$SRC_HASH" <<'EOF'
-          import pathlib, sys
-          p = pathlib.Path(sys.argv[1])
-          p.write_text(p.read_text().replace("hash = lib.fakeHash;", f'hash = "{sys.argv[2]}";', 1))
-          EOF
-
-          NEW_SRC=$(nix build '.#packages.x86_64-linux."as/askhuman-my".src' --no-link --print-build-logs --print-out-paths)
-
-          # A cached FOD with the old hash does not validate the new lockfile.
-          # Compare verified source trees before deciding whether to reuse hashes.
-          if ! cmp -- "$OLD_SRC/pnpm-lock.yaml" "$NEW_SRC/pnpm-lock.yaml" >/dev/null; then
-            python3 - "$PKG_FILE" <<'EOF'
-          import pathlib, re, sys
-          p = pathlib.Path(sys.argv[1])
-          p.write_text(re.sub(r'(fetcherVersion = 3;\n\s*hash = )"[^"]+";', r'\1lib.fakeHash;', p.read_text(), count=1))
-          EOF
-            PNPM_HASH=$(discover_hash '.#packages.x86_64-linux."as/askhuman-my".pnpmDeps')
-            python3 - "$PKG_FILE" "$PNPM_HASH" <<'EOF'
-          import pathlib, sys
-          p = pathlib.Path(sys.argv[1])
-          p.write_text(p.read_text().replace("hash = lib.fakeHash;", f'hash = "{sys.argv[2]}";', 1))
-          EOF
-          fi
-
-          if ! cmp -- "$OLD_SRC/src-tauri/Cargo.lock" "$NEW_SRC/src-tauri/Cargo.lock" >/dev/null; then
-            python3 - "$PKG_FILE" <<'EOF'
-          import pathlib, re, sys
-          p = pathlib.Path(sys.argv[1])
-          p.write_text(re.sub(r'cargoHash = "[^"]+";', 'cargoHash = lib.fakeHash;', p.read_text(), count=1))
-          EOF
-            CARGO_HASH=$(discover_hash '.#packages.x86_64-linux."as/askhuman-my".cargoDeps')
-            python3 - "$PKG_FILE" "$CARGO_HASH" <<'EOF'
-          import pathlib, sys
-          p = pathlib.Path(sys.argv[1])
-          p.write_text(p.read_text().replace("cargoHash = lib.fakeHash;", f'cargoHash = "{sys.argv[2]}";', 1))
-          EOF
-          fi
-
-          nix build '.#packages.x86_64-linux."as/askhuman-my".pnpmDeps' --no-link --print-build-logs
-          nix build '.#packages.x86_64-linux."as/askhuman-my".cargoDeps' --no-link --print-build-logs
-
-          # Validate the full application and its upstream-supported CLI before committing.
-          PACKAGE_OUT=$(nix build '.#packages.x86_64-linux."as/askhuman-my"' --no-link --print-build-logs --print-out-paths)
-          timeout 30s "$PACKAGE_OUT/bin/AskHuman" --version
-          timeout 30s "$PACKAGE_OUT/bin/AskHuman" --help
-
-          git add "$PKG_FILE"
-          git commit -m "as/askhuman-my: ${OLD_VER} -> ${NEW_VER}"
       - name: Push changes
         run: |
           git push
