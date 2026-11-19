@@ -100,6 +100,8 @@ let
     "de/deepseek-harness"
     "do/doubao-murmur"
     "ds/dsh-desktop"
+    "ds/dsh-desktop-beta"
+    "ds/dsh-desktop-next"
     "ds/dsh-tui"
     "es/escrcpy"
     "fc/fcitx5-vocotype"

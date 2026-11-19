@@ -29,6 +29,16 @@ The default overlay keeps these same names under `pkgs.local`:
 Inspect available outputs with `nix flake show --json`. AskHuman's packaged binary
 currently supports `x86_64-linux`; other packages have their own platform limits.
 
+### DSH Desktop channels
+
+The Stable, Next, and Beta packages are `ds/dsh-desktop`, `ds/dsh-desktop-next`,
+and `ds/dsh-desktop-beta`. Each supports `x86_64-linux` and `aarch64-linux` and
+installs a launcher named after the package without its shard prefix.
+
+Stable and Next share `~/.dsh` by default. Beta uses `~/.dsh-beta`. Profiles in
+the same data directory share sessions, accounts, and credentials. Back up
+`~/.dsh` before switching between Stable and Next.
+
 ## Home Manager
 
 Import a named module into your Home Manager configuration:

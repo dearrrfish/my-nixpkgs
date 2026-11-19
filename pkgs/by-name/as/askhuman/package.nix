@@ -16,6 +16,7 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "askhuman";
+  # VERIFY: v0.17.3 needs Home Manager activation compatibility before updating.
   version = "0.17.1";
 
   src = fetchurl {

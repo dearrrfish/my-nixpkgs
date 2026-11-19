@@ -38,13 +38,53 @@ jobs:
 
           for pkg in $PACKAGES; do
             echo "Checking for updates for $pkg..."
+            # Rollback is restricted to this clean package directory on the CI checkout.
+            PKG_DIR="pkgs/by-name/$pkg"
+            if [[ -n "$(git status --porcelain -- "$PKG_DIR")" ]]; then
+              echo "::error::Refusing to update a dirty package directory: $PKG_DIR"
+              FAILED=1
+              continue
+            fi
             # Per-package nix-update arguments
             EXTRA_ARGS=()
             case "$pkg" in
               # Follows upstream release tags (dsh-v0.x.y)
               de/deepseek-harness) EXTRA_ARGS=(--version-regex 'dsh-v(.*)' --version=unstable) ;;
-              # NEXT releases use different assets and may be marked stable upstream.
-              ds/dsh-desktop) EXTRA_ARGS=(--version-regex 'v([0-9]+\.[0-9]+\.[0-9]+)$') ;;
+              as/askhuman)
+                if ! CURRENT=$(nix eval --raw ".#packages.x86_64-linux.\"$pkg\".version") ||
+                  ! VERSION=$(gh api --paginate --slurp 'repos/Naituw/AskHuman/releases?per_page=100' |
+                    python3 -I .github/scripts/select-release.py askhuman "$CURRENT"); then
+                  echo "::error::Could not select an AskHuman stable release"
+                  FAILED=1
+                  continue
+                fi
+                [[ -n "$VERSION" ]] || continue
+                if nix run --inputs-from . nixpkgs#nix-update -- --flake "$pkg" --version="$VERSION" &&
+                  nix build --no-link --print-build-logs .#checks.x86_64-linux.askhuman-activation &&
+                  git commit -m "fix(pkgs): update askhuman to $VERSION" -- "$PKG_DIR/package.nix"; then
+                  continue
+                fi
+                echo "::error::Failed to update $pkg; restoring its package directory"
+                git restore --source=HEAD --staged --worktree -- "$PKG_DIR"
+                FAILED=1
+                continue
+                ;;
+              ds/dsh-desktop|ds/dsh-desktop-next|ds/dsh-desktop-beta)
+                # Update both architecture hashes in one commit, even on the x86 runner.
+                PINS="$PKG_DIR/release.json"
+                if VERSION=$(gh api --paginate --slurp 'repos/anywhere-labs/dsh-desktop/releases?per_page=100' |
+                    python3 -I .github/scripts/select-release.py "${pkg#*/}" "$PINS"); then
+                  [[ -n "$VERSION" ]] || continue
+                  if nix build --no-link --print-build-logs ".#packages.x86_64-linux.\"$pkg\".tests.runtime-smoke" &&
+                    git commit -m "fix(pkgs): update ${pkg#*/} to $VERSION" -- "$PINS"; then
+                    continue
+                  fi
+                fi
+                echo "::error::Failed to update $pkg; restoring release pins"
+                git restore --source=HEAD --staged --worktree -- "$PINS"
+                FAILED=1
+                continue
+                ;;
               cl/cli-proxy-api)
                 # Releases become visible before all binary assets are uploaded.
                 if ! RELEASE=$(gh api repos/router-for-me/CLIProxyAPI/releases/latest); then
@@ -61,13 +101,6 @@ jobs:
                 EXTRA_ARGS=(--version="$VERSION")
                 ;;
             esac
-            # Rollback is restricted to this clean package directory on the CI checkout.
-            PKG_DIR="pkgs/by-name/$pkg"
-            if [[ -n "$(git status --porcelain -- "$PKG_DIR")" ]]; then
-              echo "::error::Refusing to update a dirty package directory: $PKG_DIR"
-              FAILED=1
-              continue
-            fi
             # Try to update the package.
             # --commit: Creates a commit if an update is found
             # --flake: Specifies the flake and attribute
