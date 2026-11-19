@@ -11,11 +11,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "dsh-tui";
-  version = "0.19.0";
+  version = "0.20.2";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/@deepseek-harness-tui/dsh-tui/-/dsh-tui-${finalAttrs.version}.tgz";
-    hash = "sha256-paQbJMafxo+GjOTVY3/q7yJ8t7NKF3wGJdk47sqyLac=";
+    hash = "sha256-8ompSAXU4jPGT/X6o749wvNlJYG/c/D5Bhguw6dEm6M=";
   };
 
   sourceRoot = "package";
