@@ -21,6 +21,7 @@
   coreutils,
   gnused,
   gawk,
+  gnugrep,
   git,
   dbus,
   bash,
@@ -33,25 +34,24 @@
 
 buildGoModule (finalAttrs: {
   pname = "magpie";
-  # VERIFY: Before upgrading, confirm the GUI translation and settings persistence tests pass.
-  version = "0.1.3816";
+  version = "0.1.4569";
 
   src = fetchFromGitHub {
     owner = "yetone";
     repo = "magpie";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-HTxHzOoujq93AITVHbkr/ovDsnRS+p/Br/FHmTSS4aU=";
+    hash = "sha256-gKbHxeFAKO+5ugaifeNxjhOhpOVmyJU9UwmKjv7DMQI=";
   };
 
-  vendorHash = "sha256-1uxRG7QOibgmJBx99O5OQmIeCJ5V9zdZmsgGVwaKZbo=";
+  vendorHash = "sha256-TgMwl324YTy8l9zlkjK/aAqJafP/m3ZbiLLDl1OrffY=";
 
   excludedPackages = [
     "build/icon"
     "internal/gui/genpurposes"
     # 根模块通过 replace 使用此嵌套模块，不能将其作为根模块子包构建。
     "third_party/jsonschema"
-  ]
-  ++ lib.optional (finalAttrs.version != "0.1.3816") "third_party/yaml.v3";
+    "third_party/yaml.v3"
+  ];
 
   env = {
     CGO_ENABLED = if withGui then 1 else 0;
@@ -93,6 +93,7 @@ buildGoModule (finalAttrs: {
     dbus
     gawk
     git
+    gnugrep
     gnused
     nodejs
     procps
@@ -114,12 +115,8 @@ buildGoModule (finalAttrs: {
   # (such as GTK/WebKit runtime variables and MAGPIE_BUN).
   postPatch = ''
     substituteInPlace internal/update/update.go \
-      --replace-fail ${
-        if finalAttrs.version == "0.1.3816" then
-          "'return filepath.EvalSymlinks(exe)' \\\n  'p, err := filepath.EvalSymlinks(exe)\n\tif err != nil {\n\t\treturn \"\", err\n\t}\n\treturn strings.ReplaceAll(p, \"/.magpie-wrapped\", \"/magpie\"), nil'"
-        else
-          "'return resolved(exe), nil' \\\n  'return strings.ReplaceAll(resolved(exe), \"/.magpie-wrapped\", \"/magpie\"), nil'"
-      }
+      --replace-fail 'return resolved(exe), nil' \
+      'return strings.ReplaceAll(resolved(exe), "/.magpie-wrapped", "/magpie"), nil'
 
     substituteInPlace internal/daemon/daemon.go \
       --replace-fail 'exe, err := os.Executable()
@@ -327,6 +324,19 @@ buildGoModule (finalAttrs: {
     substituteInPlace internal/proc/reap_test.go \
       --replace-fail 'd.Name() == "node_modules"' 'd.Name() == "node_modules" || d.Name() == "vendor"'
 
+    # The 200ms hold can be measured 0.2ms early by the sandbox's timers.
+    substituteInPlace internal/gateway/nettrace_test.go \
+      --replace-fail 'n.Wait < holdMs-1 || n.Wait > holdMs+5000 || n.Head < n.Wait' \
+                     'n.Wait < holdMs-2 || n.Wait > holdMs+5000 || n.Head < n.Wait'
+
+    # The fake Claude Code shells out to cat, grep and sleep from PATH.
+    substituteInPlace internal/provider/signin_claude_newest_test.go \
+      --replace-fail 'strings.Join(append(bins, "/usr/bin", "/bin"), string(os.PathListSeparator))' \
+                     'strings.Join(append(bins, "/usr/bin", "/bin", "${coreutils}/bin", "${gnugrep}/bin"), string(os.PathListSeparator))'
+
+    substituteInPlace internal/netproxy/system_linux_test.go \
+      --replace-fail 'dir+":/bin:/usr/bin"' 'dir+":/bin:/usr/bin:${coreutils}/bin"'
+
     substituteInPlace internal/proc/folder_linux_test.go \
       --replace-fail 'bin+":/bin:/usr/bin"' 'bin+":/bin:/usr/bin:${coreutils}/bin"'
 
@@ -359,8 +369,21 @@ buildGoModule (finalAttrs: {
       --replace-fail 'ps -o sess= -p $$ | tr -d' '${procps}/bin/ps -o sess= -p $$ | ${coreutils}/bin/tr -d' \
       --replace-fail 't.Setenv("PATH", "/usr/bin:/bin")' 't.Setenv("PATH", "/usr/bin:/bin:${coreutils}/bin")' \
       --replace-fail '/bin/cat' '${coreutils}/bin/cat'
-  ''
-  + lib.optionalString (finalAttrs.version != "0.1.3816") ''
+
+    # Allow the known stale translation key for this one help string only.
+    substituteInPlace internal/gui/builtins_test.go \
+      --replace-fail 'k, _ := json.Marshal(s)' 'if s == "The routings besides Smart: In order, Until used up, In turn, Least used first, Use before expiry, By weight, Free first, Speed first and Cheapest first" {
+          t.Logf("%s has a stale translation key for routing strategy help", lang)
+          continue
+        }
+        k, _ := json.Marshal(s)'
+
+    # A partial settings save must preserve the local model directory too.
+    substituteInPlace internal/gui/settings_keep_test.go \
+      --replace-fail 'was.GroupSink, was.GroupFirstToken, was.GroupPatience = true, 30, 120' \
+      'was.GroupSink, was.GroupFirstToken, was.GroupPatience = true, 30, 120
+      was.RedactModelDir = filepath.Join(h, "local-models")'
+
     # The provider derives this path from the sandbox's temporary directory.
     substituteInPlace internal/gateway/opencode_go_free_test.go \
       --replace-fail '"Prefer /tmp/opencode"' "\"Prefer $(realpath "$TMPDIR")/opencode\""
