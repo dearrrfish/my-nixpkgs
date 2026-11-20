@@ -33,22 +33,23 @@
 
 buildGoModule (finalAttrs: {
   pname = "magpie";
-  version = "0.1.3816";
+  version = "0.1.4569";
 
   src = fetchFromGitHub {
     owner = "yetone";
     repo = "magpie";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-HTxHzOoujq93AITVHbkr/ovDsnRS+p/Br/FHmTSS4aU=";
+    hash = "sha256-gKbHxeFAKO+5ugaifeNxjhOhpOVmyJU9UwmKjv7DMQI=";
   };
 
-  vendorHash = "sha256-1uxRG7QOibgmJBx99O5OQmIeCJ5V9zdZmsgGVwaKZbo=";
+  vendorHash = "sha256-TgMwl324YTy8l9zlkjK/aAqJafP/m3ZbiLLDl1OrffY=";
 
   excludedPackages = [
     "build/icon"
     "internal/gui/genpurposes"
-    # 根模块通过 replace 使用此嵌套模块，不能将其作为根模块子包构建。
+    # The root module imports these via replace; they are separate Go modules.
     "third_party/jsonschema"
+    "third_party/yaml.v3"
   ];
 
   env = {
@@ -112,12 +113,8 @@ buildGoModule (finalAttrs: {
   # (such as GTK/WebKit runtime variables and MAGPIE_BUN).
   postPatch = ''
     substituteInPlace internal/update/update.go \
-      --replace-fail 'return filepath.EvalSymlinks(exe)' \
-      'p, err := filepath.EvalSymlinks(exe)
-    	if err != nil {
-    		return "", err
-    	}
-    	return strings.ReplaceAll(p, "/.magpie-wrapped", "/magpie"), nil'
+      --replace-fail 'return resolved(exe), nil' \
+      'return strings.ReplaceAll(resolved(exe), "/.magpie-wrapped", "/magpie"), nil'
 
     substituteInPlace internal/daemon/daemon.go \
       --replace-fail 'exe, err := os.Executable()
@@ -308,6 +305,10 @@ buildGoModule (finalAttrs: {
 
     substituteInPlace internal/gateway/automode_test.go \
       --replace-fail '#!/usr/bin/env python3' '#!${python3}/bin/python3'
+
+    # The provider derives this path from the sandbox's temporary directory.
+    substituteInPlace internal/gateway/opencode_go_free_test.go \
+      --replace-fail '"Prefer /tmp/opencode"' "\"Prefer $(realpath "$TMPDIR")/opencode\""
 
     # Upstream test expectation typo: raw JSON has escaped \n, not unescaped newlines
     substituteInPlace internal/gateway/claude_client_cache_test.go \
