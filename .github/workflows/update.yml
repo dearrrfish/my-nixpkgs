@@ -85,6 +85,9 @@ jobs:
                 FAILED=1
                 continue
                 ;;
+              ma/magpie)
+                EXTRA_ARGS=(--build)
+                ;;
               cl/cli-proxy-api)
                 # Releases become visible before all binary assets are uploaded.
                 if ! RELEASE=$(gh api repos/router-for-me/CLIProxyAPI/releases/latest); then

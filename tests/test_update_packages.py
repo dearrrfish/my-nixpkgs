@@ -125,6 +125,7 @@ class PackageUpdateTests(unittest.TestCase):
         _, output, calls = self.run_update("ma/magpie")
         self.assertEqual(output, "failed=0\n")
         self.assertIn("run --inputs-from . nixpkgs#nix-update -- --flake", calls)
+        self.assertIn("ma/magpie --commit --build", calls)
 
     def test_askhuman_uses_numeric_stable_version_with_linux_asset(self):
         def askhuman(version, **flags):
