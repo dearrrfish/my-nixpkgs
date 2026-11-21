@@ -16,12 +16,11 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "askhuman";
-  # VERIFY: v0.17.3 needs Home Manager activation compatibility before updating.
-  version = "0.17.1";
+  version = "0.17.3";
 
   src = fetchurl {
     url = "https://github.com/Naituw/AskHuman/releases/download/v${finalAttrs.version}/AskHuman-x86_64-unknown-linux-gnu-v${finalAttrs.version}.tar.gz";
-    hash = "sha256-9kSju5uPzla//Gpj3guAuljuoeCPBoCba0x5TDc6EMU=";
+    hash = "sha256-zg0ciiPc7kfZm+lTLiPQVRE3wBvRrjtcFE9KAuvU+Wc=";
   };
 
   sourceRoot = ".";
