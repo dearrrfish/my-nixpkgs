@@ -144,6 +144,7 @@ SECRET_PATHS = {
         ("feishu", "appSecret"),
         ("slack", "botToken"),
         ("slack", "appToken"),
+        ("ios", "password"),
     )
 }
 

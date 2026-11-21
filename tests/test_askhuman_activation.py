@@ -32,6 +32,7 @@ def isolated_env(home):
     # No desktop or live credential-service connection is inherited.
     return {
         "HOME": str(home),
+        "ASKHUMAN_HOME": str(home / ".askhuman"),
         "XDG_CONFIG_HOME": str(home / ".config"),
         "XDG_STATE_HOME": str(home / ".local/state"),
         "XDG_CACHE_HOME": str(home / ".cache"),
@@ -168,6 +169,7 @@ class PackagedCLI(unittest.TestCase):
             "cursor": ("cli", "mcp"),
             "grok": ("mcp",),
             "pi": ("cli",),
+            "antigravity": ("cli", "mcp"),
         }
         from unittest.mock import patch
 
@@ -180,6 +182,8 @@ class PackagedCLI(unittest.TestCase):
                     entry = {"mode": mode, "lifecycle": True, "env": {}}
                     if agent in ("codex", "claude"):
                         entry["permission"] = True
+                    if agent == "codex":
+                        entry["delegated"] = True
                     if agent != "grok":
                         entry["stop"] = True
                     if agent == "claude":

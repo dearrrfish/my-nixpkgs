@@ -35,6 +35,7 @@ let
     // lib.optionalAttrs (value ? permission) { inherit (value) permission; }
     // lib.optionalAttrs (value ? stop) { inherit (value) stop; }
     // lib.optionalAttrs (value ? askQuestion) { inherit (value) askQuestion; }
+    // lib.optionalAttrs (value ? delegated) { inherit (value) delegated; }
   ) (lib.filterAttrs (_: value: value.enable) cfg.integrations);
   manifest = pkgs.writeText "askhuman-manifest.json" (
     builtins.toJSON {

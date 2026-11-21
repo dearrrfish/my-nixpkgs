@@ -113,7 +113,7 @@ class RuntimeTests(unittest.TestCase):
         ):
             runtime.run_cli("/bin/AskHuman", ["config", "--help"], self.home)
         kwargs = cli.call_args.kwargs
-        self.assertNotIn("ASKHUMAN_HOME", kwargs["env"])
+        self.assertEqual(kwargs["env"]["ASKHUMAN_HOME"], str(self.home / ".askhuman"))
         self.assertEqual(kwargs["env"]["HOME"], str(self.home))
         self.assertEqual(kwargs["stderr"], runtime.subprocess.DEVNULL)
 
@@ -267,8 +267,9 @@ class RuntimeTests(unittest.TestCase):
             ("grok", {"mode": "cli"}),
             ("pi", {"mode": "mcp"}),
             ("cursor", {"mode": "cli", "permission": True}),
-            ("antigravity", {"mode": "cli", "lifecycle": True}),
-            ("antigravity", {"mode": "mcp", "stop": True}),
+            ("antigravity", {"mode": "cli", "permission": True}),
+            ("grok", {"mode": "mcp", "stop": True}),
+            ("claude", {"mode": "cli", "delegated": True}),
         ):
             with self.subTest(agent=agent), self.assertRaises(runtime.Error):
                 runtime.run(

@@ -14,7 +14,7 @@ in
 {
   options.programs.askhuman.settings = mkOption {
     default = { };
-    description = "Sparse non-secret AskHuman v0.14.5 settings. Undeclared and unknown settings are preserved in the writable application config.";
+    description = "Sparse non-secret AskHuman v0.17.3 settings. Undeclared and unknown settings are preserved in the writable application config.";
     type = types.submodule {
       options = {
         general.theme = leaf (types.enum [
@@ -46,6 +46,22 @@ in
           "custom"
         ]) "general.collaborationStyle";
         general.collaborationStyleCustomText = leaf types.str "general.collaborationStyleCustomText";
+        general.agentCollaborationStyles = mkOption {
+          default = { };
+          description = "Per-agent collaboration style overrides. Unset agents inherit general.collaborationStyle.";
+          type = types.attrsOf (
+            types.submodule {
+              options = {
+                style = leaf (types.enum [
+                  "aligned"
+                  "autonomous"
+                  "custom"
+                ]) "general.agentCollaborationStyles.<agent>.style";
+                customText = leaf types.str "general.agentCollaborationStyles.<agent>.customText";
+              };
+            }
+          );
+        };
         general.historyLimit = leaf u32 "general.historyLimit";
         general.todoHistoryLimit = leaf u32 "general.todoHistoryLimit";
         general.popupSound = leaf types.str "general.popupSound";
@@ -59,6 +75,10 @@ in
           "activity"
           "keepalive"
         ]) "general.daemonLifecycle";
+        general.away.capsule = leaf types.bool "general.away.capsule";
+        general.away.welcomeBack = leaf types.bool "general.away.welcomeBack";
+        general.away.pushAfterSecs = leaf (types.ints.between 0 86400) "general.away.pushAfterSecs";
+        general.quickReplies = leaf (types.listOf types.str) "general.quickReplies";
         channels.popup.enabled = leaf types.bool "channels.popup.enabled";
         channels.popup.windowMode = leaf (types.enum [
           "merged"
@@ -94,16 +114,35 @@ in
           "agent-default"
           "yolo"
         ]) "agentTasks.permissionPrompt";
+        agentTasks.cursorMax.policy = leaf (types.enum [
+          "enforce-off"
+          "inherit"
+        ]) "agentTasks.cursorMax.policy";
+        agentTasks.cursorMax.plan = leaf (types.enum [
+          "auto"
+          "legacy"
+          "token-based"
+        ]) "agentTasks.cursorMax.plan";
         permissions.codexRelaxedShell = leaf types.bool "permissions.codexRelaxedShell";
         experimental.enabled = leaf types.bool "experimental.enabled";
         experimental.verticalQuestions = leaf types.bool "experimental.verticalQuestions";
         cursorDesktop.suppressBackgroundCompletionFollowUp = leaf types.bool "cursorDesktop.suppressBackgroundCompletionFollowUp";
+        cursorDesktop.endEscalationsWhileAway = leaf types.bool "cursorDesktop.endEscalationsWhileAway";
+        cursorDesktop.launchPreference = leaf (types.enum [
+          "terminal"
+          "desktop"
+        ]) "cursorDesktop.launchPreference";
         codexDesktop.appPath = leaf types.str "codexDesktop.appPath";
         codexDesktop.codexHome = leaf types.str "codexDesktop.codexHome";
         codexDesktop.launchPreference = leaf (types.enum [
           "terminal"
           "desktop"
         ]) "codexDesktop.launchPreference";
+        antigravityDesktop.launchPreference = leaf (types.enum [
+          "terminal"
+          "desktop"
+        ]) "antigravityDesktop.launchPreference";
+        antigravityDesktop.manageSidecars = leaf types.bool "antigravityDesktop.manageSidecars";
       };
     };
   };

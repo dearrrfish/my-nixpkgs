@@ -173,15 +173,25 @@ let
       };
     };
     invalidPermission = rejects { programs.askhuman.integrations.cursor.permission = true; };
-    invalidAntigravityLifecycle = rejects {
-      programs.askhuman.integrations.antigravity.lifecycle = true;
+    invalidAntigravityPermission = rejects {
+      programs.askhuman.integrations.antigravity.permission = true;
     };
+    codexDelegatedEvaluates = evaluates (configured [
+      {
+        programs.askhuman.integrations.codex = {
+          enable = true;
+          delegated = true;
+        };
+      }
+    ]);
     antigravityModesEvaluate =
       evaluates (configured [
         {
           programs.askhuman.integrations.antigravity = {
             enable = true;
             mode = "cli";
+            lifecycle = true;
+            stop = true;
           };
         }
       ])
@@ -190,6 +200,8 @@ let
           programs.askhuman.integrations.antigravity = {
             enable = true;
             mode = "mcp";
+            lifecycle = true;
+            stop = true;
           };
         }
       ]);

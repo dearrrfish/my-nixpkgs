@@ -128,6 +128,23 @@ true
 
 - [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
 
+## programs.askhuman.integrations.antigravity.lifecycle
+
+Declare lifecycle tracking. Null preserves the existing upstream preference.
+
+*Type:*
+null or boolean
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
 ## programs.askhuman.integrations.antigravity.mode
 
 Native integration mode. Grok supports only mcp; Pi supports only cli.
@@ -139,6 +156,23 @@ one of “cli”, “mcp”
 
 ```nix
 "cli"
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
+## programs.askhuman.integrations.antigravity.stop
+
+Declare stop interception. Null preserves the existing upstream preference.
+
+*Type:*
+null or boolean
+
+*Default:*
+
+```nix
+null
 ```
 
 *Declared by:*
@@ -304,6 +338,23 @@ false
 
 ```nix
 true
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/integrations.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/integrations.nix)
+
+## programs.askhuman.integrations.codex.delegated
+
+Declare whether delegated (non-interactive) Codex runs may use AskHuman. Null preserves the existing upstream preference.
+
+*Type:*
+null or boolean
+
+*Default:*
+
+```nix
+null
 ```
 
 *Declared by:*
@@ -785,7 +836,7 @@ null
 
 ## programs.askhuman.settings
 
-Sparse non-secret AskHuman v0.14.5 settings. Undeclared and unknown settings are preserved in the writable application config.
+Sparse non-secret AskHuman v0.17.3 settings. Undeclared and unknown settings are preserved in the writable application config.
 
 *Type:*
 submodule
@@ -817,12 +868,80 @@ null
 
 - [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
 
+## programs.askhuman.settings.agentTasks.cursorMax.plan
+
+Declare upstream agentTasks.cursorMax.plan. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or one of “auto”, “legacy”, “token-based”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.agentTasks.cursorMax.policy
+
+Declare upstream agentTasks.cursorMax.policy. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or one of “enforce-off”, “inherit”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
 ## programs.askhuman.settings.agentTasks.permissionPrompt
 
 Declare upstream agentTasks.permissionPrompt. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
 
 *Type:*
 null or one of “ask”, “agent-default”, “yolo”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.antigravityDesktop.launchPreference
+
+Declare upstream antigravityDesktop.launchPreference. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or one of “terminal”, “desktop”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.antigravityDesktop.manageSidecars
+
+Declare upstream antigravityDesktop.manageSidecars. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or boolean
 
 *Default:*
 
@@ -1327,6 +1446,40 @@ null
 
 - [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
 
+## programs.askhuman.settings.cursorDesktop.endEscalationsWhileAway
+
+Declare upstream cursorDesktop.endEscalationsWhileAway. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or boolean
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.cursorDesktop.launchPreference
+
+Declare upstream cursorDesktop.launchPreference. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or one of “terminal”, “desktop”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
 ## programs.askhuman.settings.cursorDesktop.suppressBackgroundCompletionFollowUp
 
 Declare upstream cursorDesktop.suppressBackgroundCompletionFollowUp. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
@@ -1378,6 +1531,57 @@ null
 
 - [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
 
+## programs.askhuman.settings.general.agentCollaborationStyles
+
+Per-agent collaboration style overrides. Unset agents inherit general.collaborationStyle.
+
+*Type:*
+attribute set of (submodule)
+
+*Default:*
+
+```nix
+{ }
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.agentCollaborationStyles.\<name>.customText
+
+Declare upstream general.agentCollaborationStyles.\<agent>.customText. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or string
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.agentCollaborationStyles.\<name>.style
+
+Declare upstream general.agentCollaborationStyles.\<agent>.style. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or one of “aligned”, “autonomous”, “custom”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
 ## programs.askhuman.settings.general.alwaysOnTop
 
 Declare upstream general.alwaysOnTop. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
@@ -1401,6 +1605,57 @@ Declare upstream general.appearAnimation. Null leaves this setting unmanaged; re
 
 *Type:*
 null or one of “none”, “document”, “alert”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.away.capsule
+
+Declare upstream general.away.capsule. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or boolean
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.away.pushAfterSecs
+
+Declare upstream general.away.pushAfterSecs. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or integer between 0 and 86400 (both inclusive)
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.away.welcomeBack
+
+Declare upstream general.away.welcomeBack. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or boolean
 
 *Default:*
 
@@ -1554,6 +1809,23 @@ Declare upstream general.popupSubmitKey. Null leaves this setting unmanaged; rem
 
 *Type:*
 null or one of “cmdEnter”, “enter”
+
+*Default:*
+
+```nix
+null
+```
+
+*Declared by:*
+
+- [modules/home-manager/askhuman/settings.nix](https://github.com/dearrrfish/my-nixpkgs/blob/main/modules/home-manager/askhuman/settings.nix)
+
+## programs.askhuman.settings.general.quickReplies
+
+Declare upstream general.quickReplies. Null leaves this setting unmanaged; removing a declaration conditionally restores its original value.
+
+*Type:*
+null or (list of string)
 
 *Default:*
 

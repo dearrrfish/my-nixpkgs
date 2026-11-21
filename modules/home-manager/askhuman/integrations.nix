@@ -29,21 +29,11 @@ let
         default = if agent == "grok" then "mcp" else "cli";
         description = "Native integration mode. Grok supports only mcp; Pi supports only cli.";
       };
-    }
-    // lib.optionalAttrs (agent != "antigravity") {
       lifecycle = nullable "Declare lifecycle tracking. Null preserves the existing upstream preference.";
     }
-    //
-      lib.optionalAttrs
-        (
-          !builtins.elem agent [
-            "grok"
-            "antigravity"
-          ]
-        )
-        {
-          stop = nullable "Declare stop interception. Null preserves the existing upstream preference.";
-        }
+    // lib.optionalAttrs (agent != "grok") {
+      stop = nullable "Declare stop interception. Null preserves the existing upstream preference.";
+    }
     //
       lib.optionalAttrs
         (builtins.elem agent [
@@ -57,6 +47,7 @@ let
       askQuestion = nullable "Declare Claude native AskUserQuestion interception. Null preserves the existing preference.";
     }
     // lib.optionalAttrs (agent == "codex") {
+      delegated = nullable "Declare whether delegated (non-interactive) Codex runs may use AskHuman. Null preserves the existing upstream preference.";
       mcpEnvironment = mkOption {
         type = types.attrsOf types.str;
         default = { };

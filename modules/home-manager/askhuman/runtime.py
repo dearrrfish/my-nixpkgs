@@ -18,12 +18,12 @@ import reconcile as ordinary
 
 Error = ordinary.ReconcileError
 MATRIX = {
-    "codex": ({"cli", "mcp"}, {"permission", "stop", "lifecycle"}),
+    "codex": ({"cli", "mcp"}, {"permission", "stop", "lifecycle", "delegated"}),
     "claude": ({"cli", "mcp"}, {"permission", "stop", "lifecycle", "askQuestion"}),
     "cursor": ({"cli", "mcp"}, {"stop", "lifecycle"}),
     "grok": ({"mcp"}, {"lifecycle"}),
     "pi": ({"cli"}, {"stop", "lifecycle"}),
-    "antigravity": ({"cli", "mcp"}, set()),
+    "antigravity": ({"cli", "mcp"}, {"stop", "lifecycle"}),
 }
 # Exact mutation inventory from upstream paths.rs and integration installers.
 NATIVE = {
@@ -48,8 +48,11 @@ NATIVE = {
     ],
     "pi": [".pi/agent/AGENTS.md", ".pi/agent/extensions/askhuman/index.ts"],
     "antigravity": [
-        ".gemini/config/rules/askhuman-antigravity.md",
-        ".gemini/config/mcp_config.json",
+        ".gemini/config/plugins/askhuman/rules/AGENTS.md",
+        ".gemini/config/plugins/askhuman/mcp_config.json",
+        ".gemini/config/plugins/askhuman/hooks.json",
+        ".gemini/config/plugins/askhuman/plugin.json",
+        ".gemini/config/plugins/askhuman/.askhuman-managed",
     ],
 }
 PREFERENCES = [
@@ -59,11 +62,14 @@ PREFERENCES = [
     "stop-preferences.json",
     "lifecycle-preferences.json",
     "ask-question-preferences.json",
+    "delegated-preferences.json",
+    "antigravity-plugin.json",
 ]
 MARKERS = {
     "__agent-hook",
     "__permission-hook",
     "__stop-hook",
+    "__failure-hook",
     "__subagent-hook",
     "__context-recovery-hook",
     "__ask-question-hook",
@@ -183,12 +189,14 @@ def validate(manifest):
 
 def run_cli(executable, arguments, home):
     env = dict(os.environ)
-    env.pop("ASKHUMAN_HOME", None)
     for key in list(env):
         if key.startswith("ANTIGRAVITY_") or key.startswith("CODEX_"):
             env.pop(key, None)
+    # AskHuman v0.17.2+ resolves System paths from the OS account record unless
+    # ASKHUMAN_HOME is set, which also routes integration_home() via HOME.
     env.update(
         HOME=str(home),
+        ASKHUMAN_HOME=str(home / ".askhuman"),
         CODEX_HOME=str(home / ".codex"),
         XDG_CONFIG_HOME=str(home / ".config"),
     )
@@ -215,7 +223,12 @@ KNOWN = {
     ),
     "general.away": {"capsule", "welcomeBack", "pushAfterSecs"},
     "codexDesktop": {"appPath", "codexHome", "launchPreference"},
-    "cursorDesktop": {"suppressBackgroundCompletionFollowUp", "launchPreference"},
+    "cursorDesktop": {
+        "suppressBackgroundCompletionFollowUp",
+        "endEscalationsWhileAway",
+        "launchPreference",
+    },
+    "antigravityDesktop": {"launchPreference", "manageSidecars"},
     "agentTasks": {"enabled", "permissionPrompt", "cursorMax"},
     "agentTasks.cursorMax": {"policy", "plan"},
     "permissions": {"codexRelaxedShell"},
@@ -249,6 +262,7 @@ KNOWN = {
         "password",
         "relayUrl",
         "macName",
+        "insecureLocal",
         "alertAfterSecs",
     },
 }
@@ -397,8 +411,8 @@ def normalize_command(command, executable):
     return shlex.quote(executable) + match.group(1)
 
 
-def normalize_hooks(value, executable):
-    hooks = value.get("hooks", {})
+def normalize_hooks(value, executable, root_key="hooks"):
+    hooks = value.get(root_key, {})
     if not isinstance(hooks, dict):
         raise Error("Malformed native hooks")
     for groups in hooks.values():
@@ -452,11 +466,21 @@ def normalize_native(integrations, home, executable):
         if value is None:
             continue
         original = copy.deepcopy(value)
-        normalize_hooks(value, executable)
+        root_key = (
+            "askhuman"
+            if path == home / ".gemini/config/plugins/askhuman/hooks.json"
+            else "hooks"
+        )
+        normalize_hooks(value, executable, root_key=root_key)
         servers = value.get("mcpServers", {})
         if not isinstance(servers, dict):
             raise Error("Malformed native MCP servers")
-        for key in ("askhuman", "AskHuman"):
+        mcp_keys = (
+            ("mcp",)
+            if path == home / ".gemini/config/plugins/askhuman/mcp_config.json"
+            else ("askhuman", "AskHuman")
+        )
+        for key in mcp_keys:
             if key in servers:
                 if not isinstance(servers[key], dict) or not isinstance(
                     servers[key].get("command"), str
@@ -465,6 +489,23 @@ def normalize_native(integrations, home, executable):
                 servers[key]["command"] = executable
         if value != original:
             ordinary.atomic_json(path, value)
+            plugin_dir = home / ".gemini/config/plugins/askhuman"
+            if plugin_dir in path.parents:
+                ledger_path = home / ".askhuman/antigravity-plugin.json"
+                ledger, _ = ordinary._read(ledger_path)
+                if isinstance(ledger, dict):
+                    rel = path.relative_to(plugin_dir).as_posix()
+                    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                    files = ledger.get("files")
+                    if isinstance(files, dict) and rel in files:
+                        files[rel] = digest
+                    pending = ledger.get("pending")
+                    if isinstance(pending, dict) and isinstance(
+                        pending.get("files"), dict
+                    ):
+                        if rel in pending["files"]:
+                            pending["files"][rel] = digest
+                    ordinary.atomic_json(ledger_path, ledger)
         if path == home / ".codex/hooks.json":
             codex_hooks = value
     for agent in ("codex", "grok"):
@@ -609,7 +650,7 @@ def activate(manifest, home, state, dry_run=False):
             for key, value in sorted(policy.get("env", {}).items()):
                 args.extend(["--env", key + "=" + value])
             run_cli(executable, args, home)
-            for capability in ("permission", "stop", "lifecycle"):
+            for capability in ("permission", "stop", "lifecycle", "delegated"):
                 if policy.get(capability) is not None:
                     run_cli(
                         executable,
