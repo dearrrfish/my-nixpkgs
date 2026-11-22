@@ -39,14 +39,11 @@ or paths exist here.
 - `flake/exports.nix`: explicit consumer module outputs; never recursively import
   consumer modules through the flake-parts infrastructure tree.
 
-- `modules/home-manager/`: reusable HM modules, including `programs.askhuman`.
+- `modules/home-manager/`: reusable HM modules (aggregation root).
 
 - `modules/nixos/`: system-module aggregation root (currently empty).
 
-- `tests/`: real module evaluation and isolated runtime/activation fixtures.
-
-- `docs/modules/askhuman-options.md`: generated option reference; regenerate with
-  `nix run .#generate-module-docs` after public option changes.
+- `tests/`: real module evaluation and package update workflow fixtures.
 
 Consumer modules must not depend on host-specific helpers or an obligatory
 consumer overlay. Preserve existing slash package keys and `pkgs.local`.
@@ -147,13 +144,10 @@ nix flake check --print-build-logs
 ```
 
 - Documentation-only changes need formatting and diff review, not package builds.
-- For module changes, build `checks.x86_64-linux.module-eval`,
-  `checks.x86_64-linux.askhuman-reconcile`, and
-  `checks.x86_64-linux.askhuman-activation`. These run isolated fixtures; never
-  execute HM activation against the real user home as an unattended test.
-- Build `checks.x86_64-linux.module-docs` after regenerating the option reference.
-  Evaluate `checks.<system>.module-eval.drvPath` for every supported system;
-  distinguish evaluation from native execution.
+- For module changes, build `checks.x86_64-linux.module-eval` and evaluate
+  `checks.<system>.module-eval.drvPath` for every supported system; distinguish
+  evaluation from native execution. Never execute HM activation against the real
+  user home as an unattended test.
 - While new files are untracked, use `path:.` and
   `nix run path:.#formatter.x86_64-linux -- <changed-files>` so Git flake filtering
   does not hide the new infrastructure.

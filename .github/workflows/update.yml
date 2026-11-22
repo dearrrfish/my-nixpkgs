@@ -50,25 +50,6 @@ jobs:
             case "$pkg" in
               # Follows upstream release tags (dsh-v0.x.y)
               de/deepseek-harness) EXTRA_ARGS=(--version-regex 'dsh-v(.*)' --version=unstable) ;;
-              as/askhuman)
-                if ! CURRENT=$(nix eval --raw ".#packages.x86_64-linux.\"$pkg\".version") ||
-                  ! VERSION=$(gh api --paginate --slurp 'repos/Naituw/AskHuman/releases?per_page=100' |
-                    python3 -I .github/scripts/select-release.py askhuman "$CURRENT"); then
-                  echo "::error::Could not select an AskHuman stable release"
-                  FAILED=1
-                  continue
-                fi
-                [[ -n "$VERSION" ]] || continue
-                if nix run --inputs-from . nixpkgs#nix-update -- --flake "$pkg" --version="$VERSION" &&
-                  nix build --no-link --print-build-logs .#checks.x86_64-linux.askhuman-activation &&
-                  git commit -m "fix(pkgs): update askhuman to $VERSION" -- "$PKG_DIR/package.nix"; then
-                  continue
-                fi
-                echo "::error::Failed to update $pkg; restoring its package directory"
-                git restore --source=HEAD --staged --worktree -- "$PKG_DIR"
-                FAILED=1
-                continue
-                ;;
               ds/dsh-desktop|ds/dsh-desktop-next|ds/dsh-desktop-beta)
                 # Update both architecture hashes in one commit, even on the x86 runner.
                 PINS="$PKG_DIR/release.json"

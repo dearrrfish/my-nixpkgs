@@ -14,7 +14,7 @@ inputs.my-nixpkgs.url = "github:dearrrfish/my-nixpkgs";
 Package names include their two-character shard:
 
 ```sh
-nix build 'github:dearrrfish/my-nixpkgs#as/askhuman'
+nix build 'github:dearrrfish/my-nixpkgs#ma/magpie'
 ```
 
 The default overlay keeps these same names under `pkgs.local`:
@@ -22,12 +22,12 @@ The default overlay keeps these same names under `pkgs.local`:
 ```nix
 {
   nixpkgs.overlays = [ inputs.my-nixpkgs.overlays.default ];
-  environment.systemPackages = [ pkgs.local."as/askhuman" ];
+  environment.systemPackages = [ pkgs.local."ma/magpie" ];
 }
 ```
 
-Inspect available outputs with `nix flake show --json`. AskHuman's packaged binary
-currently supports `x86_64-linux`; other packages have their own platform limits.
+Inspect available outputs with `nix flake show --json`. Individual packages have
+their own platform limits.
 
 ### DSH Desktop channels
 
@@ -39,43 +39,19 @@ Stable and Next share `~/.dsh` by default. Beta uses `~/.dsh-beta`. Profiles in
 the same data directory share sessions, accounts, and credentials. Back up
 `~/.dsh` before switching between Stable and Next.
 
-## Home Manager
+## Home Manager and NixOS modules
 
-Import a named module into your Home Manager configuration:
+`homeManagerModules.default` and `nixosModules.default` are the explicit
+aggregation entry points for reusable Home Manager and NixOS modules.
 
-```nix
-{
-  imports = [ inputs.my-nixpkgs.homeManagerModules.askhuman ];
-  programs.askhuman = {
-    enable = true;
-    settings.general.theme = "dark";
-  };
-}
-```
-
-The module uses your Home Manager package set and the repository's AskHuman
-package definition. No overlay is required. Override `programs.askhuman.package`
-when using another compatible package. `homeManagerModules.default` imports all
-provided HM modules; individual programs remain disabled until enabled.
-
-AskHuman settings stay writable. Only declared fields are managed; removing a
-field conditionally restores its previous value. Agent integrations and runtime
-secret files are independent opt-ins with additional home-state effects. Read
-[the module guide](docs/modules/askhuman.md) before enabling them.
-
-## NixOS modules
-
-`nixosModules.default` is the explicit aggregation entry point for future system
-modules. It currently imports no system modules and does not configure an
-AskHuman system service. AskHuman is managed through Home Manager.
+`programs.askhuman` and the AskHuman package have moved to the upstream
+`AskHuman` flake (`homeManagerModules.askhuman` and `packages.<system>.default`);
+see [Migration and rollback](docs/migration.md).
 
 ## Development
 
 - [Architecture and adding modules](docs/architecture.md)
-- [AskHuman module guide](docs/modules/askhuman.md)
-- [AskHuman option reference](docs/modules/askhuman-options.md)
 - [Migration and rollback](docs/migration.md)
-- [AskHuman Linux troubleshooting](docs/askhuman.md)
 
 Packages live in `pkgs/by-name/<shard>/<name>/package.nix`, using explicit
 `callPackage` dependencies. `flake/` contains flake-parts infrastructure;

@@ -127,43 +127,6 @@ class PackageUpdateTests(unittest.TestCase):
         self.assertIn("run --inputs-from . nixpkgs#nix-update -- --flake", calls)
         self.assertIn("ma/magpie --commit --build", calls)
 
-    def test_askhuman_uses_numeric_stable_version_with_linux_asset(self):
-        def askhuman(version, **flags):
-            return release(
-                f"v{version}",
-                f"AskHuman-x86_64-unknown-linux-gnu-v{version}.tar.gz",
-                **flags,
-            )
-
-        _, output, calls = self.run_update(
-            "as/askhuman",
-            release=[
-                [
-                    release("ios-testflight-21"),
-                    askhuman("0.99.0", draft=True),
-                    askhuman("0.98.0", prerelease=True),
-                    release("v0.97.0"),
-                    askhuman("0.17.9"),
-                ],
-                [askhuman("0.17.10")],
-            ],
-        )
-        self.assertEqual(output, "failed=0\n")
-        self.assertIn("--version=0.17.10", calls)
-        self.assertIn(".#checks.x86_64-linux.askhuman-activation", calls)
-
-    def test_askhuman_activation_failure_restores_package(self):
-        content, output, calls = self.run_update(
-            "as/askhuman",
-            release=[
-                [release("v0.17.3", "AskHuman-x86_64-unknown-linux-gnu-v0.17.3.tar.gz")]
-            ],
-            build_fail=True,
-        )
-        self.assertEqual(content, "original\n")
-        self.assertEqual(output, "failed=1\n")
-        self.assertIn(".#checks.x86_64-linux.askhuman-activation", calls)
-
     def test_desktop_channels_update_both_architectures(self):
         releases = [
             [

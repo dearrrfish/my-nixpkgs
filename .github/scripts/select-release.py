@@ -16,10 +16,7 @@ DESKTOP = {
 
 
 def select(package: str, pages: list) -> tuple[str, dict[str, str]] | None:
-    if package == "askhuman":
-        suffix, prefix, prerelease = "", "", False
-    else:
-        suffix, prefix, prerelease = DESKTOP[package]
+    suffix, prefix, prerelease = DESKTOP[package]
     candidates = []
     for page in pages:
         for release in page:
@@ -33,20 +30,12 @@ def select(package: str, pages: list) -> tuple[str, dict[str, str]] | None:
                 for asset in release["assets"]
                 if asset["state"] == "uploaded"
             }
-            if package == "askhuman":
-                if f"AskHuman-x86_64-unknown-linux-gnu-{tag}.tar.gz" not in assets:
-                    continue
-                hashes = {}
-            else:
-                names = {
-                    arch: f"{prefix}-{version}-{arch}.deb"
-                    for arch in ("amd64", "arm64")
-                }
-                if not all(name in assets for name in names.values()):
-                    continue
-                hashes = {
-                    arch: assets[name].get("digest") for arch, name in names.items()
-                }
+            names = {
+                arch: f"{prefix}-{version}-{arch}.deb" for arch in ("amd64", "arm64")
+            }
+            if not all(name in assets for name in names.values()):
+                continue
+            hashes = {arch: assets[name].get("digest") for arch, name in names.items()}
             candidates.append((tuple(map(int, match.groups())), version, hashes))
     if not candidates:
         return None
@@ -64,10 +53,6 @@ def main() -> None:
     if release is None:
         return
     version, digests = release
-    if package == "askhuman":
-        if version_key(version) > version_key(current_or_path):
-            print(version)
-        return
     pins = Path(current_or_path)
     current = json.loads(pins.read_text(encoding="utf-8"))["version"]
     if version_key(version) <= version_key(current):
