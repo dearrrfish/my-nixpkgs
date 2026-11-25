@@ -34,13 +34,13 @@
 
 buildGoModule (finalAttrs: {
   pname = "magpie";
-  version = "0.1.4622";
+  version = "0.1.4777";
 
   src = fetchFromGitHub {
     owner = "yetone";
     repo = "magpie";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-XBHHnnt3t4+73wGhH+qQiaiG5kfgSdZSh05ZKnmC+ME=";
+    hash = "sha256-1ITMFdXtJWY3tqaF5hW1jisqPyCc4Sj9/jwKUyYA/aI=";
   };
 
   vendorHash = "sha256-Adyhp/oY0nWiSXOwrsbHTEFp60H9aJWUoPKUUUrYItc=";
@@ -118,31 +118,7 @@ buildGoModule (finalAttrs: {
       --replace-fail 'return resolved(exe), nil' \
       'return strings.ReplaceAll(resolved(exe), "/.magpie-wrapped", "/magpie"), nil'
 
-    substituteInPlace internal/daemon/daemon.go \
-      --replace-fail 'exe, err := os.Executable()
-    	if err != nil {
-    		return "", err
-    	}' \
-      'exe, err := os.Executable()
-    	if err != nil {
-    		return "", err
-    	}
-    	exe = strings.ReplaceAll(exe, "/.magpie-wrapped", "/magpie")'
-
-    substituteInPlace internal/autostart/autostart.go \
-      --replace-fail 'return exe, nil' \
-      'return strings.ReplaceAll(exe, "/.magpie-wrapped", "/magpie"), nil'
-
     substituteInPlace internal/gui/scheme_linux.go \
-      --replace-fail 'exe, err := os.Executable()
-    	if err != nil {
-    		return err
-    	}' \
-      'exe, err := os.Executable()
-    	if err != nil {
-    		return err
-    	}
-    	exe = strings.ReplaceAll(exe, "/.magpie-wrapped", "/magpie")' \
       --replace-fail 'exe, err := os.Executable()
     	if err != nil {
     		return
@@ -383,10 +359,6 @@ buildGoModule (finalAttrs: {
       --replace-fail 'was.GroupSink, was.GroupFirstToken, was.GroupPatience = true, 30, 120' \
       'was.GroupSink, was.GroupFirstToken, was.GroupPatience = true, 30, 120
       was.RedactModelDir = filepath.Join(h, "local-models")'
-
-    # The provider derives this path from the sandbox's temporary directory.
-    substituteInPlace internal/gateway/opencode_go_free_test.go \
-      --replace-fail '"Prefer /tmp/opencode"' "\"Prefer $(realpath "$TMPDIR")/opencode\""
   '';
 
   postInstall =
@@ -400,11 +372,13 @@ buildGoModule (finalAttrs: {
     else
       ''
         wrapProgram $out/bin/magpie \
+          --set-default MAGPIE_EXECUTABLE "$out/bin/magpie" \
           --set-default MAGPIE_BUN "${lib.getExe bun}"
       '';
 
   preFixup = lib.optionalString withGui ''
     gappsWrapperArgs+=(
+      --set-default MAGPIE_EXECUTABLE "$out/bin/magpie"
       --set-default MAGPIE_BUN "${lib.getExe bun}"
       --set-default WEBKIT_DISABLE_DMABUF_RENDERER 1
       --suffix PATH : "${lib.makeBinPath [ xdg-utils ]}"
