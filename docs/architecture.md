@@ -18,7 +18,7 @@ consumer aggregation roots explicitly list imports.
 
 ## Public outputs
 
-- `packages.<system>` retains slash keys such as `"ma/magpie"`.
+- `packages.<system>` retains slash keys such as `"fr/freecontrol2"`.
 - `overlays.default` exposes the same package set under `pkgs.local`.
 - `homeManagerModules.default` imports all provided HM modules, disabled by default.
 - `nixosModules.default` is currently an empty aggregation root.

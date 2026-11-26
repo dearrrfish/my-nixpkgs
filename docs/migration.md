@@ -26,3 +26,15 @@ migrates existing settings ledgers from
 `$XDG_STATE_HOME/my-nixpkgs/askhuman/managed-settings.json` to
 `$XDG_STATE_HOME/askhuman/hm/managed-settings.json` when the new ledger does not
 yet exist.
+
+## Magpie moved to the upstream `magpie-releases` flake
+
+The `ma/magpie` package has moved to the official
+[`yetone/magpie-releases`](https://github.com/yetone/magpie-releases) flake:
+
+- Add `inputs.magpie.url = "github:yetone/magpie-releases";` (optionally with
+  `inputs.nixpkgs.follows = "nixpkgs";`).
+- Replace `pkgs.local."ma/magpie"` / `pkgs.inputs.my-nixpkgs.ma.magpie` with
+  `inputs.magpie.packages.${pkgs.stdenv.hostPlatform.system}.default` (or
+  `magpie-cli` for the terminal-only build, or use
+  `inputs.magpie.overlays.default`).

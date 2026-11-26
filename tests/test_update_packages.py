@@ -111,21 +111,21 @@ class PackageUpdateTests(unittest.TestCase):
             )
 
     def test_failed_update_restores_package_and_reports_failure(self):
-        content, output, _ = self.run_update("ma/magpie", fail=True)
+        content, output, _ = self.run_update("fr/freecontrol2", fail=True)
         self.assertEqual(content, "original\n")
         self.assertEqual(output, "failed=1\n")
 
     def test_dirty_package_is_preserved(self):
-        content, output, calls = self.run_update("ma/magpie", dirty=True)
+        content, output, calls = self.run_update("fr/freecontrol2", dirty=True)
         self.assertEqual(content, "user change\n")
         self.assertEqual(output, "failed=1\n")
         self.assertEqual(calls, "")
 
     def test_updates_use_locked_toolchain(self):
-        _, output, calls = self.run_update("ma/magpie")
+        _, output, calls = self.run_update("fr/freecontrol2")
         self.assertEqual(output, "failed=0\n")
         self.assertIn("run --inputs-from . nixpkgs#nix-update -- --flake", calls)
-        self.assertIn("ma/magpie --commit --build", calls)
+        self.assertIn("fr/freecontrol2 --commit", calls)
 
     def test_desktop_channels_update_both_architectures(self):
         releases = [

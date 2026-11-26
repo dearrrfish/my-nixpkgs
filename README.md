@@ -14,7 +14,7 @@ inputs.my-nixpkgs.url = "github:dearrrfish/my-nixpkgs";
 Package names include their two-character shard:
 
 ```sh
-nix build 'github:dearrrfish/my-nixpkgs#ma/magpie'
+nix build 'github:dearrrfish/my-nixpkgs#fr/freecontrol2'
 ```
 
 The default overlay keeps these same names under `pkgs.local`:
@@ -22,7 +22,7 @@ The default overlay keeps these same names under `pkgs.local`:
 ```nix
 {
   nixpkgs.overlays = [ inputs.my-nixpkgs.overlays.default ];
-  environment.systemPackages = [ pkgs.local."ma/magpie" ];
+  environment.systemPackages = [ pkgs.local."fr/freecontrol2" ];
 }
 ```
 

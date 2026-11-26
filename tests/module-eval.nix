@@ -44,7 +44,6 @@ let
     "es/escrcpy"
     "fc/fcitx5-vocotype"
     "fr/freecontrol2"
-    "ma/magpie"
   ];
   overlayPkgs = import inputs.nixpkgs {
     inherit system;
@@ -54,7 +53,8 @@ let
     homeManagerAggregation = evaluates home;
     retiredPackageAbsent =
       !(inputs.self.packages.${system} ? "as/askhuman")
-      && !(inputs.self.packages.${system} ? "as/askhuman-my");
+      && !(inputs.self.packages.${system} ? "as/askhuman-my")
+      && !(inputs.self.packages.${system} ? "ma/magpie");
     standalonePkgsHasNoConsumerOverlay = !(standalonePkgs ? local);
     nixosAggregation =
       nixos.config.networking.hostName == "module-test"
